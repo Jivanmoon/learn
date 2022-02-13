@@ -1,9 +1,9 @@
 #include "instruction.h"
 #include "../cpu/mmu.h"
 #include "../cpu/register.h"
-uint64_t decode_od(od_t od) {
+static uint64_t decode_od(od_t od) {
     if(od.type == IMM) {
-        return od.imm;
+        return *((uint64_t *)&od.imm);
     }
     else if(od.type == REG) {
         return (uint64_t)od.reg1;
@@ -61,5 +61,16 @@ void instruction_cycle() {
 }
 
 void init_handler_table() {
-    //todo
+    handler_table[mov_reg_reg] = &mov_reg_reg_handler;
+    handler_table[add_reg_reg] = &add_reg_reg_handler;
+}
+
+void mov_reg_reg_handler(uint64_t src, uint64_t dst) {
+    *(uint64_t *)dst = *(uint64_t *)src;
+    reg.rip = reg.rip + sizeof(inst_t);
+}
+
+void add_reg_reg_handler(uint64_t src, uint64_t dst) {
+    *(uint64_t *)dst = *(uint64_t *)dst + *(uint64_t *)src;
+    reg.rip = reg.rip + sizeof(inst_t);
 }

@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include "../memory/instruction.h"
 
-#define INST_LEN 100
-inst_t program[INST_LEN];
+#define INST_LEN 15
+
 
 #endif //LEARNCPP_ELF_H

@@ -8,13 +8,18 @@
 #include <stdint.h>
 #define NUM_INSTRTYPE 30
 typedef enum OP {
-    MOV, //0
-    PUSH,//1
-    CALL,//2
-    add_reg_reg
+    mov_reg_reg,
+    mov_reg_mem,
+    mov_mem_reg,
+    push_reg,
+    pop_reg,
+    call,
+    ret,
+    add_reg_reg,
 } op_t;
 
 typedef enum OD_TYPE {
+    EMPTY,
     IMM, REG, MM_IMM, MM_REG, MM_IMM_REG, MM_REG1_REG2,
     MM_IMM_REG1_REG2, MM_REG2_S, MM_IMM_REG2_S, MM_REG1_REG2_S,
     mm_IMM_REG1_REG2_S
@@ -27,22 +32,27 @@ typedef struct OD {
     int64_t scal;
     uint64_t *reg1;
     uint64_t *reg2;
-
-    char code[100];
 } od_t;
 
 typedef struct INSTRUCT_STRUCT {
     op_t op;//mov push
     od_t src;
     od_t dst;
+    char code[100];
 } inst_t;
-
-uint64_t decode_od(od_t od);
-
-void instruction_cycle();
 
 typedef void (*handler_t)(uint64_t, uint64_t);
 
 handler_t handler_table[NUM_INSTRTYPE];
+
+void instruction_cycle();
+
+void init_handler_table();
+
+void mov_reg_reg_handler(uint64_t src, uint64_t dst);
+
+void add_reg_reg_handler(uint64_t src, uint64_t dst);
+
+
 
 #endif //LEARNCPP_INSTRUCTION_H
