@@ -3,11 +3,10 @@
 //
 #include "cpu/register.h"
 #include "memory/instruction.h"
-#include "disk/code.c"
+#include "disk/elf.h"
 #include "memory/dram.h"
 #include "cpu/mmu.h"
 #include <stdio.h>
-#include "elf.h"
 
 int main() {
     init_handler_table();
@@ -22,16 +21,25 @@ int main() {
     reg.rsp = 0x7fffffffca80;
     reg.rip = (uint64_t)&program[11];
 
+    write64bits_dram(va2pa(0x7fffffffcaa0), 0x00401160);    //rbp
+    write64bits_dram(va2pa(0x7fffffffca98), 0x12340000);
+    write64bits_dram(va2pa(0x7fffffffca90), 0x0000abcd);
+    write64bits_dram(va2pa(0x7fffffffca88), 0x00401020);
+    write64bits_dram(va2pa(0x7fffffffca80), 0x00401160);    //rsp
 
-    mm[va2pa(0x7fffffffcaa0)] = 0x00401160;     //rbp
-    mm[va2pa(0x7fffffffca9f)] = 0x12340000;
-    mm[va2pa(0x7fffffffca90)] = 0x0000abcd;
-    mm[va2pa(0x7fffffffca8f)] = 0x00401020;
-    mm[va2pa(0x7fffffffca80)] = 0x00401160;     //rsp
+//    uint64_t pa = va2pa(0x7fffffffcaa0);
+//    printf("%16lx\n", *((uint64_t *)(&mm[pa])));
+//    printf("%16lx\n", read64bits_dram(pa));
+
+    printf("%ld\n", sizeof(inst_t));
+    print_register();
+    print_stack();
 
     //run instruction
-    for(int i = 0; i < INST_LEN; ++i) {
+    for(int i = 0; i < 7; ++i) {
         instruction_cycle();
+        print_register();
+        print_stack();
     }
 
 
@@ -46,12 +54,6 @@ int main() {
     match = match && (reg.rbp == 0x7fffffffcaa0);
     match = match && (reg.rsp == 0x7fffffffca80);
 
-    match = match && (mm[va2pa(0x7fffffffcaa0)] == 0x00401160);
-    match = match && (mm[va2pa(0x7fffffffca9f)] == 0x12340000);
-    match = match && (mm[va2pa(0x7fffffffca90)] == 0x0000abcd);
-    match = match && (mm[va2pa(0x7fffffffca8f)] == 0x1234abcd);
-    match = match && (mm[va2pa(0x7fffffffca80)] == 0x00401160);
-
     if(match == 1) {
         printf("register match\n");
     }
@@ -59,11 +61,11 @@ int main() {
         printf("register not match\n");
     }
 
-    match = match && (mm[va2pa(0x7fffffffcaa0)] == 0x00401160);
-    match = match && (mm[va2pa(0x7fffffffca9f)] == 0x12340000);
-    match = match && (mm[va2pa(0x7fffffffca90)] == 0x0000abcd);
-    match = match && (mm[va2pa(0x7fffffffca8f)] == 0x1234abcd);
-    match = match && (mm[va2pa(0x7fffffffca80)] == 0x00401160);
+    match = match && (read64bits_dram(va2pa(0x7fffffffcaa0)) == 0x00401160);
+    match = match && (read64bits_dram(va2pa(0x7fffffffca98)) == 0x12340000);
+    match = match && (read64bits_dram(va2pa(0x7fffffffca90)) == 0x0000abcd);
+    match = match && (read64bits_dram(va2pa(0x7fffffffca88)) == 0x1234abcd);
+    match = match && (read64bits_dram(va2pa(0x7fffffffca80)) == 0x00401160);
 
     if(match == 1) {
         printf("memory match\n");
