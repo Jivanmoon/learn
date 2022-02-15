@@ -36,7 +36,7 @@ int main() {
     print_stack();
 
     //run instruction
-    for(int i = 0; i < 7; ++i) {
+    for(int i = 0; i < INST_LEN; ++i) {
         instruction_cycle();
         print_register();
         print_stack();

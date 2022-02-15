@@ -10,5 +10,6 @@ CODE = ./src/memory/instruction.c ./src/disk/code.c ./src/memory/dram.c ./src/cp
 .PHONY: program
 main:
 	$(CC) $(CFLAGS) $(CODE) -o $(EXE)
-run:
 	./$(EXE)
+clean:
+	rm -rf *.o *~ $(EXE)
