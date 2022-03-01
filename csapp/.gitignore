@@ -1,6 +1,0 @@
-exe_linker
-exe_hardware
-*.a
-*.o
-*~
-/.vscode
