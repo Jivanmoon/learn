@@ -3,5 +3,5 @@ exe_hardware
 *.a
 *.o
 *~
-/.vscode
-/build
+.vscode/
+build/
