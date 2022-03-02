@@ -109,7 +109,6 @@ int main(void)
 			pollfds.push_back(pfd);
 			--nready;
 
-			// 连接成功
 			std::cout<<"ip="<<inet_ntoa(peeraddr.sin_addr)<<
 				" port="<<ntohs(peeraddr.sin_port)<<std::endl;
 			if (nready == 0)
