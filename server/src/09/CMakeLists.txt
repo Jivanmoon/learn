@@ -10,4 +10,4 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 add_executable(Thread_test Thread_test.cpp Thread.cpp)
 target_link_libraries(Thread_test pthread)
-add_executable(bf_test bf_test.cpp)
+#add_executable(bf_test bf_test.cpp)

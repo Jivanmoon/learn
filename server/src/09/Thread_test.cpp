@@ -42,7 +42,6 @@ void ThreadFunc2(int count)
 	while (count--)
 	{
 		cout<<"ThreadFunc2 ..."<<endl;
-		sleep(1);
 	}
 }
 
@@ -56,13 +55,13 @@ int main(void)
 	Foo foo2(3);
 	Thread t4(boost::bind(&Foo::MemberFun2, &foo2, 1000));
 
-	t1.Start();
-	t2.Start();
+	//t1.Start();
+	//t2.Start();
 	t3.Start();
 	t4.Start();
 
-	t1.Join();
-	t2.Join();
+	//t1.Join();
+	//t2.Join();
 	t3.Join();
 	t4.Join();
 

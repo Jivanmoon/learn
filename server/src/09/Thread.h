@@ -8,7 +8,7 @@ class Thread
 {
 public:
 	typedef boost::function<void ()> ThreadFunc;
-	explicit Thread(const ThreadFunc& func);
+    explicit Thread(const ThreadFunc& func);
 
 	void Start();
 	void Join();
