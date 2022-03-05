@@ -187,22 +187,52 @@ typedef struct REGISTER_STRUCT
 /*      cpu core                        */
 /*======================================*/
 
-typedef union CPU_FLAGS_STRUCT
+// condition code flags of most recent (latest) operation
+// condition codes will only be set by the following integer arithmetic instructions
+
+/* integer arithmetic instructions
+    inc     increment 1
+    dec     decrement 1
+    neg     negate
+    not     complement
+    ----------------------------
+    add     add
+    sub     subtract
+    imul    multiply
+    xor     exclusive or
+    or      or
+    and     and
+    ----------------------------
+    sal     left shift
+    shl     left shift (same as sal)
+    sar     arithmetic right shift
+    shr     logical right shift
+*/
+
+/* comparison and test instructions
+    cmp     compare
+    test    test
+*/
+
+// the 4 flags be a uint64_t in total
+typedef struct CPU_FLAGS_STRUCT
 {
-    uint64_t __flag_values;
-    struct
+    union
     {
-        // carry flag: detect overflow for unsigned operations
-        uint16_t CF;
-        // zero flag: result is zero
-        uint16_t ZF;
-        // sign flag: result is negative: highest bit
-        uint16_t SF;
-        // overflow flag: detect overflow for signed operations
-        uint16_t OF;
+        uint64_t __cpu_flag_value;
+        struct
+        {    
+            // carry flag: detect overflow for unsigned operations
+            uint16_t CF;
+            // zero flag: result is zero
+            uint16_t ZF;
+            // sign flag: result is negative: highest bit
+            uint16_t SF;
+            // overflow flag: detect overflow for signed operations
+            uint16_t OF;
+        };
     };
 } cpu_flag_t;
-
 
 typedef struct CORE_STRUCT
 {
@@ -227,7 +257,8 @@ core_t cores[NUM_CORES];
 // active core for current task
 uint64_t ACTIVE_CORE;
 
-#define MAX_INSTRUCTION_CHAR 64
+// move to common.h to be shared by linker
+// #define MAX_INSTRUCTION_CHAR 64
 #define NUM_INSTRTYPE 14
 
 // CPU's instruction cycle: execution of instructions

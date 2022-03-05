@@ -135,6 +135,7 @@ static uint64_t decode_operand(od_t *od)
     return 0;
 }
 
+
 // lookup table
 static const char *reg_name_list[72] = {
     "%rax","%eax","%ax","%ah","%al",
@@ -154,9 +155,8 @@ static const char *reg_name_list[72] = {
     "%r14","%r14d","%r14w","%r14b",
     "%r15","%r15d","%r15w","%r15b",
 };
-
-static uint64_t reflect_register(const char* str, core_t* cr)
-{
+static uint64_t reflect_register(const char *str, core_t *cr)
+{    
     // lookup table
     reg_t *reg = &(cr->reg);
     uint64_t reg_addr[72] = {
@@ -177,11 +177,11 @@ static uint64_t reflect_register(const char* str, core_t* cr)
         (uint64_t)&(reg->r14),(uint64_t)&(reg->r14d),(uint64_t)&(reg->r14w),(uint64_t)&(reg->r14b),
         (uint64_t)&(reg->r15),(uint64_t)&(reg->r15d),(uint64_t)&(reg->r15w),(uint64_t)&(reg->r15b),
     };
-    for(int i = 0; i < 72; ++i)
+    for (int i = 0; i < 72; ++ i)
     {
-        if(strcmp(str, reg_name_list[i]) == 0)
+        if (strcmp(str, reg_name_list[i]) == 0)
         {
-            //now we know that i is the index inside reg_name_list
+            // now we know that i is the index inside reg_name_list
             return reg_addr[i];
         }
     }
@@ -191,14 +191,131 @@ static uint64_t reflect_register(const char* str, core_t* cr)
 
 static void parse_instruction(const char *str, inst_t *inst, core_t *cr)
 {
-    
+    char op_str[64] = {'\0'};
+    int op_len = 0;
+    char src_str[64] = {'\0'};
+    int src_len = 0;
+    char dst_str[64] = {'\0'};
+    int dst_len = 0;
+
+    char c;
+    int count_parentheses = 0;
+    int state = 0;
+
+    for (int i = 0; i < strlen(str); ++ i)
+    {
+        c = str[i];
+        if (c == '(' || c == ')')
+        {
+            count_parentheses ++;
+        }
+
+        if (state == 0 && c != ' ')
+        {
+            state = 1;
+        }
+        else if (state == 1 && c == ' ')
+        {
+            state = 2;
+            continue;
+        }
+        else if (state == 2 && c != ' ')
+        {
+            state = 3;
+        }
+        else if (state == 3 && c == ',' && (count_parentheses == 0 || count_parentheses == 2))
+        {
+            state = 4;
+            continue;
+        }
+        else if (state == 4 && c != ' ' && c != ',')
+        {
+            state = 5;
+        }
+        else if (state == 5 && c == ' ')
+        {
+            state = 6;
+            continue;
+        }
+
+        if (state == 1)
+        {
+            op_str[op_len] = c;
+            op_len ++;
+            continue;
+        }
+        else if (state == 3)
+        {
+            src_str[src_len] = c;
+            src_len ++;
+            continue;
+        }
+        else if (state == 5)
+        {
+            dst_str[dst_len] = c;
+            dst_len ++;
+            continue;
+        }
+    }
+
+    // op_str, src_str, dst_str
+    // strlen(str)
+    parse_operand(src_str, &(inst->src), cr);
+    parse_operand(dst_str, &(inst->dst), cr);
+
+    if (strcmp(op_str, "mov") == 0 || strcmp(op_str, "movq") == 0)
+    {
+        inst->op = INST_MOV;
+    }
+    else if (strcmp(op_str, "push") == 0)
+    {
+        inst->op = INST_PUSH;
+    }
+    else if (strcmp(op_str, "pop") == 0)
+    {
+        inst->op = INST_POP;
+    }
+    else if (strcmp(op_str, "leaveq") == 0)
+    {
+        inst->op = INST_LEAVE;
+    }
+    else if (strcmp(op_str, "callq") == 0)
+    {
+        inst->op = INST_CALL;
+    }
+    else if (strcmp(op_str, "retq") == 0)
+    {
+        inst->op = INST_RET;
+    }
+    else if (strcmp(op_str, "add") == 0)
+    {
+        inst->op = INST_ADD;
+    }
+    else if (strcmp(op_str, "sub") == 0)
+    {
+        inst->op = INST_SUB;
+    }
+    else if (strcmp(op_str, "cmpq") == 0)
+    {
+        inst->op = INST_CMP;
+    }
+    else if (strcmp(op_str, "jne") == 0)
+    {
+        inst->op = INST_JNE;
+    }
+    else if (strcmp(op_str, "jmp") == 0)
+    {
+        inst->op = INST_JMP;
+    }
+
+    debug_printf(DEBUG_PARSEINST, "[%s (%d)] [%s (%d)] [%s (%d)]\n", op_str, inst->op, src_str, inst->src.type, dst_str, inst->dst.type);
 }
 
 static void parse_operand(const char *str, od_t *od, core_t *cr)
 {
-    //str: assembly code string, e.g. mov $rsp $rbp
-    //od: pointer to the address to store the parsed operand
-    //cr: active core processor
+    // str: assembly code string, e.g. mov $rsp,$rbp
+    // od: pointer to the address to store the parsed operand
+    // cr: active core processor
     od->type = EMPTY;
     od->imm = 0;
     od->scal = 0;
@@ -206,27 +323,28 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
     od->reg2 = 0;
 
     int str_len = strlen(str);
-    if(str_len == 0)
+    if (str_len == 0)
     {
-        //empty operand string
-        return ;
+        // empty operand string
+        return;
     }
-    if(str[0] == '$')
+
+    if (str[0] == '$')
     {
         // immediate number
         od->type = IMM;
-        // try to prase immediate number
+        // try to parse the immediate number
         od->imm = string2uint_range(str, 1, -1);
-        return ;
+        return;
     }
-    else if(str[0] == '%')
+    else if (str[0] == '%')
     {
-        //register
+        // register
         od->type = REG;
         od->reg1 = reflect_register(str, cr);
-        return ;
+        return;
     }
-    else 
+    else
     {
         // memory access
         char imm[64] = {'\0'};
@@ -238,181 +356,157 @@ static void parse_operand(const char *str, od_t *od, core_t *cr)
         char scal[64] = {'\0'};
         int scal_len = 0;
 
-        int ca = 0;//()
-        int cb = 0;//,
-        for(int i = 0; i < str_len; ++i)
+        int ca = 0; // ()
+        int cb = 0; // comma ,
+
+        for (int i = 0; i < str_len; ++ i)
         {
             char c = str[i];
-            if(c == '(' || c ==')')
+
+            if (c == '(' || c == ')')
             {
-                ++ca;
+                ca ++;
                 continue;
             }
-            else if(c == ',') {
-                ++cb;
+            else if (c == ',')
+            {
+                cb ++;
                 continue;
             }
-            else
+            else 
             {
                 // parse imm(reg1,reg2,scal)
-                if(ca == 0)
+                if (ca == 0)
                 {
                     // xxx
                     imm[imm_len] = c;
-                    ++imm_len;
+                    imm_len ++;
                     continue;
                 }
-                else if(ca == 1)
+                else if (ca == 1)
                 {
-                    if(cb == 0)
+                    if (cb == 0)
                     {
-                        // ???(xxx
-                        // (xxx
+                        // ???(xxxx
+                        // (xxxx
                         reg1[reg1_len] = c;
-                        ++reg1_len;
+                        reg1_len ++;
                         continue;
                     }
-                    else if(cb == 1)
+                    else if (cb == 1)
                     {
-                        // ???(???,xxx
-                        // (,xxxx
+                        // (???,xxxxx
+                        // ???(???,xxxxx
+                        // (,xxxxx
+                        // ???(,xxxxx
                         reg2[reg2_len] = c;
-                        ++reg2_len;
+                        reg2_len ++;
                         continue;
                     }
-                    else if(cb == 2)
+                    else if (cb == 2)
                     {
+                        // (???,???,xxxxx
                         scal[scal_len] = c;
-                        ++scal_len;
-                        continue;
+                        scal_len ++;
                     }
                 }
             }
         }
-        // imm reg1 reg2 scal
-        if(imm_len > 0)
+
+        // imm, reg1, reg2, scal
+
+        if (imm_len > 0)
         {
             od->imm = string2uint(imm);
-            if(ca == 0)
+            if (ca == 0)
             {
-                //imm
+                // imm
                 od->type = MEM_IMM;
-                return ;
+                return;
             }
         }
-        if(scal_len > 0)
+
+        if (scal_len > 0)
         {
             od->scal = string2uint(scal);
-            if(od->scal != 1 && od->scal != 2 && od->scal != 4 && od->scal != 8)
+            if (od->scal != 1 && od->scal != 2 && od->scal != 4  && od->scal != 8)
             {
                 printf("%s is not a legal scaler\n", scal);
                 exit(0);
             }
         }
-        if(reg1_len > 0)
+
+        if (reg1_len > 0)
         {
             od->reg1 = reflect_register(reg1, cr);
         }
-        if(reg2_len > 0)
+
+        if (reg2_len > 0)
         {
             od->reg2 = reflect_register(reg2, cr);
         }
 
-        //set operand type
-        if(cb == 0)
+        // set operand type
+        if (cb == 0)
         {
-            if(imm_len > 0)
+            if (imm_len > 0)
             {
                 od->type = MEM_IMM_REG1;
-                return ;
+                return;
             }
-            else
+            else 
             {
                 od->type = MEM_REG1;
-                return ;
+                return;
             }
         }
-        else if(cb == 1)
+        else if (cb == 1)
         {
-            if(imm_len > 0)
+            if (imm_len > 0)
             {
                 od->type = MEM_IMM_REG1_REG2;
-                return ;
+                return;
             }
-            else
+            else 
             {
                 od->type = MEM_REG1_REG2;
-                return ;
+                return;
             }
         }
-        else if(cb == 2)
+        else if (cb == 2)
         {
-            if(reg1_len > 0)
+            if (reg1_len > 0)
             {
-                if(imm_len > 0)
+                // reg1 exists
+                if (imm_len > 0)
                 {
                     od->type = MEM_IMM_REG1_REG2_SCAL;
-                    return ;
+                    return;
                 }
-                else
+                else 
                 {
                     od->type = MEM_REG1_REG2_SCAL;
-                    return ;
+                    return;
                 }
             }
             else
             {
-                if(imm_len > 0)
+                // no reg1
+                if (imm_len > 0)
                 {
                     od->type = MEM_IMM_REG2_SCAL;
-                    return ;
+                    return;
                 }
-                else
+                else 
                 {
                     od->type = MEM_REG2_SCAL;
-                    return ;
+                    return;
                 }
-            }
+            }            
         }
     }
 }
-/*
-void TestParse_operand()
-{
-    ACTIVE_CORE = 0x0;
-    core_t *ac = (core_t *)&cores[ACTIVE_CORE];
 
-    const char *str[11] = {
-        "$0x1234",
-        "%rax",
-        "0xabcd",
-        "(%rsp)",
-        "0xabcd(%rsp)",
-        "(%rsp,%rbx)",
-        "0xabcd(%rsp,%rbp)",
-        "(,%rbx,8)",
-        "0xabcd(,%rbx,8)",
-        "(%rsp,%rbx,8)",
-        "0xabcd(%rsp,%rbp,8)"
-    };
-
-    printf("rax %p\n", &(ac->reg.rax));
-    printf("rsp %p\n", &(ac->reg.rsp));
-    printf("rbp %p\n", &(ac->reg.rbp));
-
-    for(int i = 0; i < 11; ++i)
-    {
-        od_t od;
-        parse_operand(str[i], &od, ac);
-        printf("\n%s\n", str[i]);
-        printf("od enum type: %d\n", od.type);
-        printf("od imm: %lx\n", od.imm);
-        printf("od reg1: %lx\n", od.reg1);
-        printf("od reg2: %lx\n", od.reg2);
-        printf("od scal: %lx\n", od.scal);
-    }
-}
-*/
 /*======================================*/
 /*      instruction handlers            */
 /*======================================*/
@@ -453,13 +547,6 @@ static handler_t handler_table[NUM_INSTRTYPE] = {
     &jmp_handler,               // 10
 };
 
-// reset the condition flags
-// inline to reduce cost
-static inline void reset_cflags(core_t *cr)
-{
-    cr->flags.__flag_values = 0;
-}
-
 // update the rip pointer to the next instruction sequentially
 static inline void next_rip(core_t *cr)
 {
@@ -483,7 +570,7 @@ static void mov_handler(od_t *src_od, od_t *dst_od, core_t *cr)
         // dst: register
         *(uint64_t *)dst = *(uint64_t *)src;
         next_rip(cr);
-        reset_cflags(cr);
+        cr->flags.__cpu_flag_value = 0;
         return;
     }
     else if (src_od->type == REG && dst_od->type >= MEM_IMM)
@@ -496,7 +583,7 @@ static void mov_handler(od_t *src_od, od_t *dst_od, core_t *cr)
             cr
             );
         next_rip(cr);
-        reset_cflags(cr);
+        cr->flags.__cpu_flag_value = 0;
         return;
     }
     else if (src_od->type >= MEM_IMM && dst_od->type == REG)
@@ -507,7 +594,7 @@ static void mov_handler(od_t *src_od, od_t *dst_od, core_t *cr)
             va2pa(src, cr), 
             cr);
         next_rip(cr);
-        reset_cflags(cr);
+        cr->flags.__cpu_flag_value = 0;
         return;
     }
     else if (src_od->type == IMM && dst_od->type == REG)
@@ -516,7 +603,7 @@ static void mov_handler(od_t *src_od, od_t *dst_od, core_t *cr)
         // dst: register
         *(uint64_t *)dst = src;
         next_rip(cr);
-        reset_cflags(cr);
+        cr->flags.__cpu_flag_value = 0;
         return;
     }
 }
@@ -537,7 +624,7 @@ static void push_handler(od_t *src_od, od_t *dst_od, core_t *cr)
             cr
             );
         next_rip(cr);
-        reset_cflags(cr);
+        cr->flags.__cpu_flag_value = 0;
         return;
     }
 }
@@ -558,7 +645,7 @@ static void pop_handler(od_t *src_od, od_t *dst_od, core_t *cr)
         (cr->reg).rsp = (cr->reg).rsp + 8;
         *(uint64_t *)src = old_val;
         next_rip(cr);
-        reset_cflags(cr);
+        cr->flags.__cpu_flag_value = 0;
         return;
     }
 }
@@ -583,7 +670,7 @@ static void call_handler(od_t *src_od, od_t *dst_od, core_t *cr)
         );
     // jump to target function address
     cr->rip = src;
-    reset_cflags(cr);
+    cr->flags.__cpu_flag_value = 0;
 }
 
 static void ret_handler(od_t *src_od, od_t *dst_od, core_t *cr)
@@ -601,7 +688,7 @@ static void ret_handler(od_t *src_od, od_t *dst_od, core_t *cr)
     (cr->reg).rsp = (cr->reg).rsp + 8;
     // jump to return address
     cr->rip = ret_addr;
-    reset_cflags(cr);
+    cr->flags.__cpu_flag_value = 0;
 }
 
 static void add_handler(od_t *src_od, od_t *dst_od, core_t *cr)
@@ -615,7 +702,15 @@ static void add_handler(od_t *src_od, od_t *dst_od, core_t *cr)
         // dst: register (value: int64_t bit map)
         uint64_t val = *(uint64_t *)dst + *(uint64_t *)src;
 
+        int val_sign = ((val >> 63) & 0x1);
+        int src_sign = ((*(uint64_t *)src >> 63) & 0x1);
+        int dst_sign = ((*(uint64_t *)dst >> 63) & 0x1);
+
         // set condition flags
+        cr->flags.CF = (val < *(uint64_t *)src); // unsigned
+        cr->flags.ZF = (val == 0);
+        cr->flags.SF = val_sign;
+        cr->flags.OF = (src_sign == 0 && dst_sign == 0 && val_sign == 1) || (src_sign == 1 && dst_sign == 1 && val_sign == 0);
 
         // update registers
         *(uint64_t *)dst = val;
@@ -628,6 +723,29 @@ static void add_handler(od_t *src_od, od_t *dst_od, core_t *cr)
 
 static void sub_handler(od_t *src_od, od_t *dst_od, core_t *cr)
 {
+    uint64_t src = decode_operand(src_od);
+    uint64_t dst = decode_operand(dst_od);
+
+    if (src_od->type == IMM && dst_od->type == REG)
+    {
+        // src: register (value: int64_t bit map)
+        // dst: register (value: int64_t bit map)
+        // dst = dst - src
+        uint64_t val = *(uint64_t *)dst + (~src + 1);
+
+        // set condition flags
+        cr->flags.CF = 0; // unsigned
+        cr->flags.ZF = (val == 0);
+        cr->flags.SF = ((val >> 63) & 0x1);
+        cr->flags.OF = 0; // singed
+
+        // update registers
+        *(uint64_t *)dst = val;
+        // signed and unsigned value follow the same addition. e.g.
+        // 5 = 0000000000000101, 3 = 0000000000000011, -3 = 1111111111111101, 5 + (-3) = 0000000000000010
+        next_rip(cr);
+        return;
+    }
 }
 
 static void cmp_handler(od_t *src_od, od_t *dst_od, core_t *cr)
@@ -647,8 +765,10 @@ static void jmp_handler(od_t *src_od, od_t *dst_od, core_t *cr)
 void instruction_cycle(core_t *cr)
 {
     // FETCH: get the instruction string by program counter
-    const char *inst_str = (const char *)cr->rip;
-    debug_printf(DEBUG_INSTRUCTIONCYCLE, "%lx    %s\n", cr->rip, inst_str);
+    char inst_str[MAX_INSTRUCTION_CHAR + 10];
+    readinst_dram(va2pa(cr->rip, cr), inst_str, cr);
+
+    debug_printf(DEBUG_INSTRUCTIONCYCLE, "%8lx    %s\n", cr->rip, inst_str);
 
     // DECODE: decode the run-time instruction operands
     inst_t inst;
@@ -701,5 +821,72 @@ void print_stack(core_t *cr)
         }
         printf("\n");
         va -= 8;
+    }
+}
+
+void TestParsingInstruction()
+{
+    ACTIVE_CORE = 0x0;    
+    core_t *ac = (core_t *)&cores[ACTIVE_CORE];
+
+    char assembly[15][MAX_INSTRUCTION_CHAR] = {
+        "push   %rbp",              // 0
+        "mov    %rsp,%rbp",         // 1
+        "mov    %rdi,-0x18(%rbp)",  // 2
+        "mov    %rsi,-0x20(%rbp)",  // 3
+        "mov    -0x18(%rbp),%rdx",  // 4
+        "mov    -0x20(%rbp),%rax",  // 5
+        "add    %rdx,%rax",         // 6
+        "mov    %rax,-0x8(%rbp)",   // 7
+        "mov    -0x8(%rbp),%rax",   // 8
+        "pop    %rbp",              // 9
+        "retq",                     // 10
+        "mov    %rdx,%rsi",         // 11
+        "mov    %rax,%rdi",         // 12
+        "callq  0",                 // 13
+        "mov    %rax,-0x8(%rbp)",   // 14
+    };
+    
+    inst_t inst;
+    for (int i = 0; i < 15; ++ i)
+    {
+        parse_instruction(assembly[i], &inst, ac);
+    }
+}
+
+void TestParsingOperand()
+{
+    ACTIVE_CORE = 0x0;    
+    core_t *ac = (core_t *)&cores[ACTIVE_CORE];
+
+    const char *strs[11] = {
+        "$0x1234",
+        "%rax",
+        "0xabcd",
+        "(%rsp)",
+        "0xabcd(%rsp)",
+        "(%rsp,%rbx)",
+        "0xabcd(%rsp,%rbx)",
+        "(,%rbx,8)",
+        "0xabcd(,%rbx,8)",
+        "(%rsp,%rbx,8)",
+        "0xabcd(%rsp,%rbx,8)",
+    };
+    
+    printf("rax %p\n", &(ac->reg.rax));
+    printf("rsp %p\n", &(ac->reg.rsp));
+    printf("rbx %p\n", &(ac->reg.rbx));
+    
+    for (int i = 0; i < 11; ++ i)
+    {
+        od_t od;
+        parse_operand(strs[i], &od, ac);
+
+        printf("\n%s\n", strs[i]);
+        printf("od enum type: %d\n", od.type);
+        printf("od imm: %lx\n", od.imm);
+        printf("od reg1: %lx\n", od.reg1);
+        printf("od reg2: %lx\n", od.reg2);
+        printf("od scal: %lx\n", od.scal);
     }
 }
