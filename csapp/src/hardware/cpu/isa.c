@@ -1,9 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include<headers/cpu.h>
-#include<headers/memory.h>
-#include<headers/common.h>
+#include "cpu.h"
+#include "memory.h"
+#include "common.h"
 
 /*======================================*/
 /*      instruction set architecture    */
