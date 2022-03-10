@@ -707,10 +707,12 @@ static void add_handler(od_t *src_od, od_t *dst_od, core_t *cr)
         int dst_sign = ((*(uint64_t *)dst >> 63) & 0x1);
 
         // set condition flags
-        cr->flags.CF = (val < *(uint64_t *)src); // unsigned
+        cr->flags.CF = val < *(uint64_t *)src; //unsigned
         cr->flags.ZF = (val == 0);
         cr->flags.SF = val_sign;
-        cr->flags.OF = (src_sign == 0 && dst_sign == 0 && val_sign == 1) || (src_sign == 1 && dst_sign == 1 && val_sign == 0);
+        cr->flags.OF = (src_sign == 0 && dst_sign == 0 && val_sign == 1) || (
+            src_sign == 1 && dst_sign == 1 && val_sign == 0
+        ); //signed
 
         // update registers
         *(uint64_t *)dst = val;
@@ -720,7 +722,35 @@ static void add_handler(od_t *src_od, od_t *dst_od, core_t *cr)
         return;
     }
 }
+/*
+1、CF的判断
 
+①加法
+
+十进制角度，如果两无符号数相加，结果大于2^n-1（n为位数），则CF=1，否则CF=0；
+
+二进制角度，如果两无符号数相加，最高位向前有进位，则CF=1，否则CF=0。
+
+②减法
+
+十进制角度，如果两无符号数相减，减数大于被减数（也即结果不在0—2^n-1内），则CF=1，否则CF=0；
+
+二进制角度，如果两无符号数相减，最高位向前游借位，则CF=1，否则CF=0。
+
+2、OF的判断
+
+①加法
+
+十进制角度，如果两有符号数相加，结果不在-2^(n-1)~2^(n-1)-1内，则OF=1，否则OF=0；
+
+二进制角度，如果两有符号数同号，而相加结果与之异号，则OF=1，否则OF=0。
+
+②减法
+
+十进制角度，如果有符号数相减结果在-2^(n-1)~2^(n-1)-1内，则OF=1，否则OF=0；
+
+二进制角度，如果两个数异号，而相减结果与被减数符号相反，则OF=1，否则OF=0。
+*/
 static void sub_handler(od_t *src_od, od_t *dst_od, core_t *cr)
 {
     uint64_t src = decode_operand(src_od);
@@ -733,11 +763,18 @@ static void sub_handler(od_t *src_od, od_t *dst_od, core_t *cr)
         // dst = dst - src
         uint64_t val = *(uint64_t *)dst + (~src + 1);
 
+        int val_sign = ((val >> 63) & 0x1);
+        int src_sign = ((src >> 63) & 0x1);
+        int dst_sign = ((*(uint64_t *)dst >> 63) & 0x1);
+
         // set condition flags
-        cr->flags.CF = 0; // unsigned
+        cr->flags.CF = *(uint64_t *)dst < src; //unsigned
         cr->flags.ZF = (val == 0);
-        cr->flags.SF = ((val >> 63) & 0x1);
-        cr->flags.OF = 0; // singed
+        cr->flags.SF = val_sign;
+        cr->flags.OF = (src_sign == 1 && dst_sign == 0 && val_sign == 1) || (
+            src_sign == 0 && dst_sign == 1 && val_sign == 0
+        ); //signed
+
 
         // update registers
         *(uint64_t *)dst = val;
@@ -750,10 +787,52 @@ static void sub_handler(od_t *src_od, od_t *dst_od, core_t *cr)
 
 static void cmp_handler(od_t *src_od, od_t *dst_od, core_t *cr)
 {
+    uint64_t src = decode_operand(src_od);
+    uint64_t dst = decode_operand(dst_od);
+
+    if (src_od->type == IMM && dst_od->type == MEM_IMM)
+    {
+        // src: register (value: int64_t bit map)
+        // dst: register (value: int64_t bit map)
+        // dst = dst - src
+        uint64_t dval = read64bits_dram(va2pa(dst, cr), cr);
+        uint64_t val = dval + (~src + 1);
+
+        int val_sign = ((val >> 63) & 0x1);
+        int src_sign = ((src >> 63) & 0x1);
+        int dst_sign = ((dval >> 63) & 0x1);
+
+        // set condition flags
+        cr->flags.CF = dval < src; //unsigned
+        cr->flags.ZF = (val == 0);
+        cr->flags.SF = val_sign;
+        cr->flags.OF = (src_sign == 1 && dst_sign == 0 && val_sign == 1) || (
+            src_sign == 0 && dst_sign == 1 && val_sign == 0
+        ); //signed
+
+        // signed and unsigned value follow the same addition. e.g.
+        // 5 = 0000000000000101, 3 = 0000000000000011, -3 = 1111111111111101, 5 + (-3) = 0000000000000010
+        next_rip(cr);
+        return;
+    }
 }
 
 static void jne_handler(od_t *src_od, od_t *dst_od, core_t *cr)
 {
+    uint64_t src = decode_operand(src_od);
+    //src_od is actually a instruction address as immediate memory number
+    //but we are interpreting it as an immediate number
+    if(cr->flags.ZF == 0)
+    {
+        //last instruction value != 0
+        cr->rip = src;
+    }
+    else
+    {
+        //last instruction value == 0
+        next_rip(cr);
+    }
+    return ;
 }
 
 static void jmp_handler(od_t *src_od, od_t *dst_od, core_t *cr)

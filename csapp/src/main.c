@@ -18,7 +18,7 @@ void TestParsingInstruction();
 
 int main()
 {
-    TestAddFunctionCallAndComputation();
+    TestSumRecursiveCondition();
     return 0;
 }
 
@@ -179,7 +179,7 @@ static void TestSumRecursiveCondition()
         instruction_cycle(cr);
         print_register(cr);
         print_stack(cr);
-        time ++;
+        ++time;
     } 
 
     // gdb state ret from func
