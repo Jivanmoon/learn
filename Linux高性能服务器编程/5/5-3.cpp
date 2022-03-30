@@ -16,7 +16,7 @@ static void handle_term(int sig) {
 
 int main(int argc, char *argv[]) {
     signal(SIGTERM, handle_term);
-    if(argc <= 3) {
+    if(argc <= 2) {
         printf("usage: %s ipaddress port_number backlog\n", basename(argv[0]));
         return 1;
     }
