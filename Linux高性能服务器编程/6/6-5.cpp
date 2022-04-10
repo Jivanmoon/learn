@@ -36,9 +36,9 @@ int main( int argc, char* argv[] )
 	assert( ret != -1 );
 
 	close( filefd );
-        close( pipefd_stdout[0] );
-        close( pipefd_stdout[1] );
-        close( pipefd_file[0] );
-        close( pipefd_file[1] );
+    close( pipefd_stdout[0] );
+    close( pipefd_stdout[1] );
+    close( pipefd_file[0] );
+    close( pipefd_file[1] );
 	return 0;
 }
