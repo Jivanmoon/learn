@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 
     client_data *users = new client_data[FD_LIMIT];
     bool timeout = false;
-    alarm(timeout);
+    alarm(TIMESLOT);//定时
 
     while(!stop_server) {
         int number = epoll_wait(epollfd, events, MAX_EVENT_NUMBER, -1);
