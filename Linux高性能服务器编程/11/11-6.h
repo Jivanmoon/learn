@@ -63,7 +63,7 @@ public:
                 }
                 for(int i = (cur_size - 1) / 2; i >= 0; --i) {
                     //对数组中的第(cur_size - 1) / 2 ~ 0个元素执行下虑操作
-                    percoltae_down(i);
+                    percolate_down(i);
                 }
             }
     }
@@ -78,9 +78,81 @@ public:
 public:
     //添加目标定时器timer
     void add_timer(heap_timer *timer) throw (std::exception) {
-        
+        if(!timer) {
+            return ;
+        }
+        if(cur_size >= capacity) { //如果当前堆数组容量不够，则将其扩大一倍
+            resize();
+        }
+        //新插入了一个元素，当前堆大小加1，hole是新建空穴的位置
+        int hole = cur_size++;
+        int parent = 0;
+        //对从空穴到根节点的路径上的所有节点执行上虑操作
+        for(; hole > 0; hole = parent) {
+            parent = (hole - 1) / 2;
+            if(array[parent]->expire <= timer->expire) {
+                break;
+            }
+            array[hole] = array[parent];
+        }
+        array[hole] = timer;
     }
 
+    //删除目标定时器timer
+    void del_timer(heap_timer *timer) {
+        if(!timer) {
+            return ;
+        }
+        //仅仅将目标定时器的回调函数设置为空，即所谓的延迟销毁。这将节省真正删除该定时器造成的开销，但这样做容易使得堆数组膨胀
+        timer->cb_func = NULL;
+    }
+
+    //获得堆顶部的定时器
+    heap_timer *top() const {
+        if(empty()) {
+            return NULL;
+        }
+        return array[0];
+    }
+
+    //删除堆顶定时器
+    void pop_timer() {
+        if(empty()) {
+            return ;
+        }
+        if(array[0]) {
+            delete array[0];
+            //将原来的堆顶元素替换为堆数组中的最后一个元素
+            array[0] = array[--cur_size];
+            percolate_down(0);//对新的堆顶元素进行下虑操作
+        }
+    }
+
+    //心博函数
+    void tick() {
+        heap_timer *tmp = array[0];
+        time_t cur = time(NULL);//循环处理堆中到期的定时器
+        while(!empty()) {
+            if(!tmp) {
+                break;
+            }
+            //如果堆顶定时器没有到期，则退出循环
+            if(tmp->expire > cur) {
+                break;
+            }
+            //否则就执行堆顶定时器中的任务
+            if(array[0]->cb_func) {
+                array[0]->cb_func(array[0]->user_data);
+            }
+            //将堆顶元素删除，同时生成新的堆顶定时器
+            pop_timer();
+            tmp = array[0];
+        }
+    }
+
+    bool empty() const {
+        return cur_size == 0;
+    }
 private:
     //最小堆的下虑操作，它确保堆数组中以第hole个节点作为根的子树拥有的最小堆性质
     void percolate_down(int hole) {
@@ -121,6 +193,6 @@ private:
     heap_timer **array;//堆数组
     int capacity;//堆数组的容量
     int cur_size;//堆数组当前包含的元素个数
-}
+};
 
 #endif
