@@ -2,21 +2,51 @@ I/O：是一切实现的基础
     stdio标准IO
     sysio系统调用IO（文件IO）
 stdio：FILE类型贯穿始终
-    fopen();
-    fclose();
+    fopen()
+    fclose()
 
-    fgetc();
-    fputc();
-    fgets();
-    fputs();
-    fread();
-    fwrite();
+    fgetc()
+    fputc()
+    fgets()
+    fputs()
+    fread()
+    fwrite()
 
-    printf();
-    scanf();
+    printf()
+    scanf()
 
-    fseek();
-    ftell();
-    rewind();
+    fseek()
+    ftell()
+    rewind()
 
-    fflush();
+    fflush()
+
+    getline()如何实现使用C语言读取一行数据
+
+    临时文件：1、如何文件名称不冲突 2、及时销毁
+        tmpnam()
+        tmpfile()
+
+文件IO/系统调用IO
+文件描述符（fd）是在文件IO中贯穿始终的类型
+文件描述符的概念（整型数，是一个数组下表，文件描述符优先使用当前可使用范围内最小的）
+文件IO操作：
+    open()
+    close()
+    read()
+    write()
+    lseek()
+文件IO与标准IO的区别
+IO的效率问题
+文件共享
+原子操作
+程序中的重定向：
+    dup()
+    dup2()
+同步：
+    sync()
+    fsync()
+    fdatasync()
+IO管理：
+    fcntl()
+    ioctl()
