@@ -5,12 +5,12 @@
 #include<fcntl.h>
 #include<unistd.h>
 
-#define BUFSIZE 1024
+#define BUFSIZE 2048 * 64
 
 int main(int argc, char **argv) {
     int sfd, dfd;
     char buf[BUFSIZE];
-    int len, ret, pos;
+    int len, ret, pos, counter = 0;
 
     if(argc < 3) {
         fprintf(stderr, "usage...");
@@ -46,8 +46,9 @@ int main(int argc, char **argv) {
             pos += ret;
             len -= ret;
         }
+        ++counter;
     }
-
+    printf("\ncounter: %d\n", counter);
     close(dfd);
     close(sfd);
     exit(0);
