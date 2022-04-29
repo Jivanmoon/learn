@@ -152,7 +152,7 @@ int run_child(int idx, client_data *users, char *share_mem)
             else if ((sockfd == pipefd) && (events[i].events & EPOLLIN))
             {
                 int client = 0;
-                ret = recv(sockfd, (char *)client, sizeof(client), 0);
+                ret = recv(sockfd, (char *)&client, sizeof(client), 0);
                 if (ret < 0)
                 {
                     if (errno != EAGAIN)
@@ -293,9 +293,90 @@ int main(int argc, char **argv)
                     close(users[user_count].pipefd[1]);
                     addfd(epollfd, users[user_count].pipefd[0]);
                     users[user_count].pid = pid;
-                    
+                    //记录新的客户连接在数组users中的索引值，建立进程pid和该索引值之间的映射关系
+                    sub_process[pid] = user_count;
+                    ++user_count;
+                }
+            }
+            //处理信号事件
+            else if((sockfd == sig_pipefd[0]) && (events[i].events & EPOLLIN)) {
+                int sig;
+                char signals[1024];
+                ret = recv(sig_pipefd[0], signals, sizeof(signals), 0);
+                if(ret == -1) {
+                    continue;
+                }
+                else if(ret == 0) {
+                    continue;
+                }
+                else {
+                    for(int i = 0; i < ret; ++i) {
+                        switch (signals[i])
+                        {
+                        case SIGCHLD:
+                            pid_t pid;
+                            int stat;
+                            while((pid == waitpid(-1, &stat, WNOHANG)) > 0) {
+                                //用子进程的pid取得被关闭的客户连接的编号
+                                int del_user = sub_process[pid];
+                                sub_process[pid] = -1;
+                                if(del_user < 0 || del_user > USER_LIMIT) {
+                                    continue;
+                                }
+                                //清除第del_user个客户连接使用的相关数据
+                                epoll_ctl(epollfd, EPOLL_CTL_DEL, users[del_user].pipefd[0], 0);
+                                close(users[del_user].pipefd[0]);
+                                users[del_user] = users[--user_count];
+                                sub_process[users[del_user].pid] = del_user;
+                            }
+                            if(terminate && user_count == 0) {
+                                stop_server = true;
+                            }
+                            break;
+                        case SIGTERM:
+                        case SIGINT:
+                            //结束服务器程序
+                            printf("kill all the child now\n");
+                            if(user_count == 0) {
+                                stop_server = true;
+                                break;
+                            }
+                            for(int i = 0; i < user_count; ++i) {
+                                int pid = users[i].pid;
+                                kill(pid, SIGTERM);
+                            }
+                            terminate = true;
+                            break;
+                        default:
+                            break;
+                        }
+                    } 
+                }
+            }
+            //某个子进程向父进程写入了数据
+            else if(events[i].events & EPOLLIN) {
+                int child = 0;
+                //读取管道数据，child变量记录了是哪个客户连接有数据到达
+                ret = recv(sockfd, (char *)&child, sizeof(child), 0);
+                printf("read data from child accross pipe\n");
+                if(ret == -1) {
+                    continue;
+                }
+                else if(ret == 0) {
+                    continue;
+                }
+                else {
+                    //向处理第child个客户连接的子进程之外的其他子进程发送消息，通知它们有客户数据要写
+                    for(int j = 0; j < user_count; ++j) {
+                        if(users[j].pipefd[0] != sockfd) {
+                            printf("send data to child accross pipe\n");
+                            send(users[j].pipefd[0], (char *)&child, sizeof(child), 0);
+                        }
+                    }
                 }
             }
         }
     }
+    del_resource();
+    return 0;
 }
