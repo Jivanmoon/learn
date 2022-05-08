@@ -115,7 +115,7 @@ static void sig_handler(int sig) {
 static void addsig(int sig, void(*handler)(int), bool restart = true) {
     struct sigaction sa;
     memset(&sa, '\0', sizeof(sa));
-    sa.sa_hander = handler;
+    sa.sa_handler = handler;
     if(restart) {
         sa.sa_flags |= SA_RESTART;
     }
