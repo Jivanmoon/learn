@@ -221,5 +221,78 @@ http_conn::HTTP_CODE http_conn::parse_content(char *text) {
 //主状态机
 http_conn::HTTP_CODE http_conn::process_read() {
     LINE_STATUS line_status = LINE_OK;
-    
+    HTTP_CODE ret = NO_REQUEST;
+    char *text = 0;
+    while(((m_check_state == CHECK_STATE_CONTENT) && (line_status == LINE_OK)) || ((line_status = parse_line()) == LINE_OK)) {
+        text = get_line();
+        m_start_line = m_checked_idx;
+        printf("got 1 http line: %s\n", text);
+
+        switch (m_check_state)
+        {
+        case CHECK_STATE_REQUESTLINE:
+            ret = parse_request_line(text);
+            if(ret == BAD_REQUEST) {
+                return BAD_REQUEST;
+            }
+            break;
+        case CHECK_STATE_HEADER:
+            ret = parse_headers(text);
+            if(ret == BAD_REQUEST) {
+                return BAD_REQUEST;
+            }
+            else if(ret == GET_REQUEST) {
+                return do_request();
+            }
+            break;
+        case CHECK_STATE_CONTENT:
+            ret = parse_content(text);
+            if(ret == GET_REQUEST) {
+                return do_request();
+            }
+            line_status = LINE_OPNE;
+            break;
+        default:
+            return INTERNAL_ERROR;
+        }
+    }
+    return NO_REQUEST;
+}
+
+//当得到一个完整、正确的http请求时，我们就分析目标文件的属性，如果目标文件存在，对所有用户可读，且不是目录，则使用mmap将其映射到内存地址m_file_address处，并告诉调用者获取文件成功
+http_conn::HTTP_CODE http_conn::do_request() {
+    strcpy(m_real_file, doc_root);
+    int len = strlen(doc_root);
+    strncpy(m_read_file + len, m_url, FIELNAME_LEN - len - 1);
+    if(stat(m_real_file, &m_file_stat) < 0) {
+        return NO_RESOURCE;
+    }
+
+    if(!(m_file_stat.st_mode & S_IROTH)) {
+        return FORBIDDEN_REQUEST;
+    }
+
+    if(S_ISDIR(m_file_stat.st_mode)) {
+        return BAD_REQUEST;
+    }
+
+    int fd = open(m_real_file, O_RDONLY);
+    m_file_address = (char *)mmap(NULL, m_file_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    close(fd);
+    return FILE_REQUEST;
+}
+
+//对内存映射区执行munmap操作
+void http_conn::unmap() {
+    if(m_file_address) {
+        munmap(m_file_address, m_file_stat.st_size);
+        m_file_address = NULL;
+    }
+}
+
+//写HTTP响应
+bool http_conn::write() {
+    int temp = 0;
+    int bytes_have_send = 0;
+    int bytes_
 }
