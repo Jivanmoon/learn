@@ -18,6 +18,7 @@
 #include<sys/mman.h>
 #include<stdarg.h>
 #include<errno.h>
+#include<sys/uio.h>
 #include "locker.h"
 
 class http_conn {
@@ -38,12 +39,12 @@ public:
     enum LINE_STATUS {LINE_OK = 0, LINE_BAD, LINE_OPNE};
 
 public:
-    http_conn();
-    ~http_conn();
+    http_conn() {}
+    ~http_conn() {}
 
 public:
     //初始化新接受的连接
-    void init(int sockfd, const sokcaddr_in &addr);
+    void init(int sockfd, const sockaddr_in &addr);
     //关闭连接
     void close_conn(bool real_close = true);
     //处理客户请求
@@ -71,7 +72,7 @@ private:
 
     //下面这一组函数被process_write调用以填充http应答
     void unmap();
-    bool add_response(cont char *format, ...);
+    bool add_response(const char *format, ...);
     bool add_content(const char *content);
     bool add_status_line(int status, const char *title);
     bool add_headers(int content_length);
@@ -129,5 +130,5 @@ private:
     //我们将采用writev来执行写操作，所以定义下面两个成员，其中m_iv_count表示被写内存块的数量
     struct iovec m_iv[2];
     int m_iv_count;
-}
+};
 #endif

@@ -81,7 +81,7 @@ bool threadpool<T>::append(T *request) {
         return false;
     }
     m_workqueue.push_back(request);
-    m_queuelocker.unlock;
+    m_queuelocker.unlock();
     m_queuestat.post();
     return true;
 }

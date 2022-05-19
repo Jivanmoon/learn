@@ -76,7 +76,7 @@ void http_conn::init() {
     m_content_length = 0;
     m_host = 0;
     m_start_line = 0;
-    m_check_idx = 0;
+    m_checked_idx = 0;
     m_read_idx = 0;
     m_write_idx = 0;
     memset(m_read_buf, '\0', READ_BUFFER_SIZE);
@@ -194,11 +194,11 @@ http_conn::HTTP_CODE http_conn::parse_headers(char *text) {
     //处理Content-Length头部字段
     else if(strncasecmp(text, "Content-Length:", 15) == 0) {
         text += 15;
-        text += strsep(text, " \t");
+        text += strspn(text, " \t");
         m_content_length = atoi(text);
     }
     //处理Host头部字段
-    else if((trncasecmp(text, "Host:", 5) == 0) {
+    else if((strncasecmp(text, "Host:", 5) == 0)) {
         text += 5;
         text += strspn(text, " \t");
         m_host = text;
@@ -211,7 +211,7 @@ http_conn::HTTP_CODE http_conn::parse_headers(char *text) {
 
 //我们没有真正的解析HTTP请求的消息体，只是判断它是否被完整的读入了
 http_conn::HTTP_CODE http_conn::parse_content(char *text) {
-    if(m_read_idx >= (m_content_length + m_check_idx)) {
+    if(m_read_idx >= (m_content_length + m_checked_idx)) {
         text[m_content_length] = '\0';
         return GET_REQUEST;
     }
@@ -263,7 +263,7 @@ http_conn::HTTP_CODE http_conn::process_read() {
 http_conn::HTTP_CODE http_conn::do_request() {
     strcpy(m_real_file, doc_root);
     int len = strlen(doc_root);
-    strncpy(m_read_file + len, m_url, FIELNAME_LEN - len - 1);
+    strncpy(m_real_file + len, m_url, FIELNAME_LEN - len - 1);
     if(stat(m_real_file, &m_file_stat) < 0) {
         return NO_RESOURCE;
     }
@@ -294,5 +294,155 @@ void http_conn::unmap() {
 bool http_conn::write() {
     int temp = 0;
     int bytes_have_send = 0;
-    int bytes_
+    int bytes_to_send = m_write_idx;
+    if(bytes_to_send == 0) {
+        modfd(m_epollfd, m_sockfd, EPOLLIN);
+        init();
+        return true;
+    }
+
+    while(1) {
+        temp = writev(m_sockfd, m_iv, m_iv_count);
+        if(temp <= -1) {
+            //如果TCP写缓冲没有空间，则等待下一轮EPOLLOUT事件。虽然在此期间，服务器无法立即接收到同一客户的下一个请求，但这可以保证连接的完整性
+            if(errno == EAGAIN) {
+                modfd(m_epollfd, m_sockfd, EPOLLOUT);
+                return true;
+            }
+            unmap();
+            return false;
+        }
+
+        bytes_to_send -= temp;
+        bytes_have_send += temp;
+        if(bytes_to_send <= bytes_have_send) {
+            //发送HTTP响应成功，根据http请求中的connection字段决定是否立即关闭连接
+            unmap();
+            if(m_linger) {
+                init();
+                modfd(m_epollfd, m_sockfd, EPOLLIN);
+                return true;
+            }
+            else {
+                modfd(m_epollfd, m_sockfd, EPOLLIN);
+                return false;
+            }
+        }
+    }
+}
+
+//往写缓冲区中写入待发送数据
+bool http_conn::add_response(const char *format, ...) {
+    if(m_write_idx >= WRITE_BUFFER_SIZE) {
+        return false;
+    }
+    va_list arg_list;
+    va_start(arg_list, format);
+    int len = vsnprintf(m_write_buf + m_write_idx, WRITE_BUFFER_SIZE - 1 - m_write_idx, format, arg_list);
+    if(len >= (WRITE_BUFFER_SIZE - 1 - m_write_idx)) {
+        return false;
+    }
+    m_write_idx += len;
+    va_end(arg_list);
+    return true;
+}
+
+bool http_conn::add_status_line(int status, const char *title) {
+    return add_response("%s %d %s\r\n", "HTTP/1.1", status, title);
+}
+
+bool http_conn::add_headers(int content_len) {
+    add_content_length(content_len);
+    add_linger();
+    add_blank_line();
+}
+
+bool http_conn::add_content_length(int content_len) {
+    return add_response("Content-Length: %d\r\n", content_len);
+}
+
+bool http_conn::add_linger() {
+    return add_response("Connection: %s\r\n", (m_linger == true) ? "keep-alive" : "close");
+}
+
+bool http_conn::add_blank_line() {
+    return add_response("%s", "\r\n");
+}
+
+bool http_conn::add_content(const char *content) {
+    return add_response("%s", content);
+}
+
+//根据服务器处理http请求的结果，决定返回给客户端的内容
+bool http_conn::process_write(HTTP_CODE ret) {
+    switch(ret) {
+    case INTERNAL_ERROR:
+        add_status_line(500, error_500_title);
+        add_headers(strlen(error_500_from));
+        if(!add_content(error_500_from)) {
+            return false;
+        }
+        break;
+    case BAD_REQUEST:
+        add_status_line(400, error_400_title);
+        add_headers(strlen(error_400_form));
+        if(!add_content(error_400_form)) {
+            return false;
+        }
+        break;
+    case NO_REQUEST:
+        add_status_line(404, error_404_title);
+        add_headers(strlen(error_404_form));
+        if(!add_content(error_404_form)) {
+            return false;
+        }
+        break;
+    case FORBIDDEN_REQUEST:
+        add_status_line(403, error_403_title);
+        add_headers(strlen(error_403_form));
+        if(!add_content(error_403_form)) {
+            return false;
+        }
+        break;
+    case FILE_REQUEST:
+        add_status_line(200, ok_200_title);
+        if(m_file_stat.st_size != 0) {
+            add_headers(m_file_stat.st_size);
+            m_iv[0].iov_base = m_write_buf;
+            m_iv[0].iov_len = m_write_idx;
+            m_iv[1].iov_base = m_file_address;
+            m_iv[1].iov_len = m_file_stat.st_size;
+            m_iv_count = 2;
+            return true;
+        }
+        else {
+            const char *ok_string = "<html><body></body></html>";
+            add_headers(strlen(ok_string));
+            if(!add_content(ok_string)) {
+                return false;
+            }
+        }
+        break;
+    default:
+        return false;
+    }
+    m_iv[0].iov_base = m_write_buf;
+    m_iv[0].iov_len = m_write_idx;
+    m_iv_count = 1;
+    return true;
+}
+
+//有线程池中的工作线程调用，这是处理http请求的入口函数
+void http_conn::process() {
+    HTTP_CODE read_ret = process_read();
+    if(read_ret == NO_REQUEST) {
+        modfd(m_epollfd, m_sockfd, EPOLLIN);
+        return ;
+    }
+
+    bool write_ret = process_write(read_ret);
+    if(!write_ret) {
+        close_conn();
+    }
+    modfd(m_epollfd, m_sockfd, EPOLLOUT);
 }
