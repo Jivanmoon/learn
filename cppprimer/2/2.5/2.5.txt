@@ -1,0 +1,10 @@
+(a)'a'：char类型、L'a'：wchar_t类型、"a"：char字符串字面值、L"a"wchar_t字符串字面值
+(b)10：int类型、10u：unsigned类型、10L：long类型、10uL：unsigned 10：int类型、10u：unsigned类型、10L：long类型、012：int类型8进制树、0xC：int类型16进制数
+(c)3.14：double类型、3.14f：float类型、3.14L：long double类型
+(d)10：int类型、10u：unsigned类型、10.：double类型、10e-2：double类型
+
+
+(a)前两个都是字符字面值，后两个是字符串字面值
+(b)前四个都是10进制数，第五个是8进制数，第六个是16进制数
+(c)都是浮点类型
+(d)前两个是整型值，第三个是浮点数类型，第四个是科学计数法表示的浮点类型
