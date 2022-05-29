@@ -37,10 +37,35 @@ Linux命令格式：cmd --长格式 -短格式 非选项的传参
     文件系统：文件或数据的存储和管理
 
 7、硬链接、符号链接
+    硬链接与目录项是同义词，并且建立硬链接有限制，不能给分区建立，不能给目录建立；
+    符号链接的优点是：可跨分区，可以给目录建立
+    link
+    unlink
+    remove
+    rename
+
 8、utime
+    可以更改文件最后读的时间和最后修改的时间
+
 9、目录的创建的和销毁
+    mkdir
+    rmdir
+
 10、更改当前的工作路径
+    chdir
+    fchdir
+    getcwd
+
 11、分析目录/读取目录内容
+    glob
+        
+
+    opendir
+    closedir
+    readdir
+    rewinddir
+    fseekdir
+    telldir
 
 
 二、系统数据文件和信息

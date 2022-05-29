@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 
     lseek(fd, 5LL * 1024LL * 1024LL * 1024LL, SEEK_SET);
     //if error
-    //write(fd, "", 1);
+    write(fd, "", 1);
 
     close(fd);
     exit(0);
