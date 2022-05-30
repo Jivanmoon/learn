@@ -10,5 +10,6 @@ int main() {
     cout << '\t';
     cout << '\115';
     cout << '\n';
+    int _;
     return 0;
 }
