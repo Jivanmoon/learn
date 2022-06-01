@@ -108,4 +108,38 @@
     验证见代码2.35.cpp，验证方法为：鼠标移到变量上就出来了......
 
 2.36
+    a的类型为int，结束值为3
+    b的类型为int，结束值为4
+    c的类型为int，结束值为4
+    d的类型为int &，结束值为绑定变量a的值4
+
+2.37
+    a的类型为int，结束值为3
+    b的类型为int，结束值为4
+    c的类型为int，结束值为3
+    d的类型为int &，结束值为3
+
+2.38
+    decltype指定类型与auto指定类型的区别主要为：decltype处理顶层const和引用的方式与auto不同
+    一样的例子：
+    int i = 10;
+    auto b = i;
+    decltype(i) c = i;
+    不一样的例子：
+    int i = 10, &ri = i;
+    auto b = ri;
+    decltype(ri) rb = ri;
+
+2.39
+    见代码
+    报错情况：error: expected ‘;’ after struct definition
+ struct FOO {}
+
+2.40
+    见代码
+
+2.41~2.42
+    见代码
     
+    
+
