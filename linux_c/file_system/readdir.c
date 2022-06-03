@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<sys/types.h>
 #include<dirent.h>
-#define PAT "/etc"
+#define PAT "/etc/"
 
 int main() {
 
