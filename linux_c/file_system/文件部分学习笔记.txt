@@ -68,5 +68,19 @@ Linux命令格式：cmd --长格式 -短格式 非选项的传参
 
 
 二、系统数据文件和信息
+1、/etc/passwd
+    getpwuid：根据uid查询用户信息
+    getpwnam：根据用户名查询用户信息
+
+2、/etc/group
+    getgrgid：根据组id查询组信息
+    getgrnam：根据组名查询组信息
+
+3、/etc/shadow
+    getspnam：通过用户名获取改用户在shadow文件中的一行内容
+    crypt：加密函数
+    getpass：用于在控制台输入密码
+
+4、时间戳
 
 三、进程环境
