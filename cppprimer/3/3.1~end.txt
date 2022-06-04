@@ -34,3 +34,46 @@
 3.11
     合法；c的类型为const char&
 
+3.12
+    (a)正确，创建一个装vector<int>的vector
+    (b)错误，模板类型参数不同
+    (c)正确，创建一个包含10个"null"的string容器
+
+3.13
+    (a)包含0个元素
+    (b)包含10个0
+    (c)包含10个42
+    (d)包含1个10
+    (e)包含两个，分别是10,42
+    (f)包含10个空字符串
+    (g)包含10个"hi"
+
+3.14
+    code
+
+3.15
+    code
+
+3.16
+    code
+
+3.17
+    code
+
+3.18
+    不合法，可以修改为
+    vector<int> ivec;
+    ivec.push_back(42);
+
+3.19
+    vector<int> v(10, 42);
+    
+    vector<int> v{42,42....,42};
+    
+    vector<int> v;
+    for(int i = 0; i < 10; ++i)
+        v.push_back(42);
+    第一种方法最好，因为代码量最小
+
+3.20
+    code
