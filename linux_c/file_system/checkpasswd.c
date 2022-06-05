@@ -1,7 +1,13 @@
+/**
+ * 
+ * 编译该程序需要使用gcc checkpasswd.c -lcrypt
+ * 而不能使用gcc -lcrypt checkpasswd.c 
+ * 具体原因我也不太清楚
+ * 
+ */
+#define _XOPEN_SOURCE
 #include<stdio.h>
 #include<stdlib.h>
-#include<sys/types.h>
-#include<crypt.h>
 #include<unistd.h>
 #include<shadow.h>
 #include<string.h>
