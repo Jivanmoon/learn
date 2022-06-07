@@ -84,4 +84,85 @@
     (e)不合法，由于前置++运算符和解引用运算符的优先级相同，且都满足右结合律，因此这个表达式相当于++(*iter)，但是string 类型没有 ++ 操作。
     (f)合法，判断迭代器当前元素是否为空，然后迭代器递增。
 
+4.21
+    code
+
+4.22
+    code
+    if语句版本的容易理解，因为多个条件运算符嵌套会导致代码可读性降低
+
+4.23
+    因为+的优先级比==高，所以最后会是一个字符串和一个字符进行比较，出错；
+    应该改为s + (s[s.size() - 1] == 's' ? "" : "s");
+
+4.24
+    根据左结合律的含义，该式等价于：
+    finalgrade = ((grade > 90) ? "high pass" : (grade < 60))?"fail":"pass";
+    先考查grade > 90是否成立，如果成立，第一个条件表达式的值为＂highpass＂；如果不成立，第一个条件表达式的值为grade < 60。这条语句是无法编译通过的，因为条件运算符要求两个结果表达式的类型相同或者可以互相转化。即使假设语法上通过，也就是说，第一个条件表达式的求值结果分为3种，分别是＂high pass＂、1和0。接下来根据第一个条件表达式的值求解第二个条件表达式，求值结果是＂fail＂或＂pass＂。上述求值过程显然与我们的期望是不符的。
+
+4.25
+    1111 1111 1111 1111 1110 0011 1000 0000
+
+4.26
+    unsigned int类型在计算机中占多少位？
+
+4.27
+    (a)3
+    (b)7
+    (c)true
+    (d)true
+
+4.28
+    code
+
+4.29
+    应该输出：
+    10
+    未定义
+    code验证：
+    10
+    2
+    因为在我的机器上一个int *占8个字节
+
+4.30
+    (a)(sizeof x) + y
+    (b)sizeof(p->mem[i])
+    (c)(sizeof a) < b
+    (d)sizeof(f())
+
+4.31
+    因为程序中只是需要将ix和cnt进行加1和减1，不需要原本的值，所以使用前置版本的递增递减运算符
+    不需要改动
+
+4.32
+    就是用指针ptr和下标ix遍历ia数组
+
+4.33
+    (someValue ? ++x, ++y : --x), --y
+    如果 someValue的值为真，x 和 y 的值都自增并返回 y 值，然后丢弃 y 值，y递减并返回 y 值。如果 someValue的值为假，x 递减并返回 x 值，然后丢弃 x 值，y递减并返回 y 值。
+    
+4.34
+    (a)fval转换为布尔类型
+    (b)ival选转换为float类型，然后和fval相加后，结果转换为double类型
+    (c)cval先转换为int类型，和ival相乘的结果转换为double类型
+
+4.35
+    (a)'a'转换为int类型，然后+3后结果转换为char类型
+    (b)ival先转为double类型，然后ui也转为double类型，最后结果转为float类型
+    (c)ui转换为float类型，和fval相乘后，结果转换为double类型
+    (d)ival先转为floagr，和fval相加后转为double类型，最后结果转为char类型
+
+4.36
+    i *= static_cast<int>(d);
+
+4.37
+    (a)pv = static_cast<void *>(const_cast<string *>(ps))
+    (b)i = static_cast<int>(*pc)
+    (c)pv = static_cast<void*>(&d)
+    (d)pc = static_cast<char *>(pv)
+
+3.48
+    将j/i的结果强制转换为double类型并赋值给slope变量
+
+
 
