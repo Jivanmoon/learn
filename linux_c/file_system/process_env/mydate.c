@@ -15,6 +15,7 @@
 #define TIMESTRSIZE 1024
 #define FMTSTRSIZE 1024
 extern char *optarg;
+extern int optind, opterr, optopt;
 
 int main(int argc, char **argv) {
     time_t stamp;
@@ -23,6 +24,7 @@ int main(int argc, char **argv) {
     int c;
     char fmtstr[FMTSTRSIZE];
     fmtstr[0] = '\0';
+    FILE *fp = stdout;
 
     stamp = time(NULL);
     tm = localtime(&stamp);
@@ -33,7 +35,14 @@ int main(int argc, char **argv) {
         switch (c)
         {
         case 1:
-            FILE *fp = fopen();
+            if(fp == stdout) {
+                fp = fopen(argv[optind - 1], "w");
+                if(fp == NULL) {
+                    perror("fopne()");
+                    fp = stdout;
+                }
+            }
+            break;
         case 'H':
             if(strcmp(optarg, "12") == 0) {
                 strncat(fmtstr, "%I(%P) ", FMTSTRSIZE);
@@ -68,10 +77,10 @@ int main(int argc, char **argv) {
             break;
         }
     }
+    strncat(fmtstr, "\n", FMTSTRSIZE);
     strftime(timestr, TIMESTRSIZE, fmtstr, tm);
-    puts(timestr);
-
-
-
+    fputs(timestr, fp);
+    if(fp != stdout)
+        fclose(fp);
     exit(0);
 }
