@@ -51,3 +51,32 @@
 6.20
     当在函数中不修改参数的值时引用形参应该是常量引用，会误导调用者改函数可以修改实参的值，并且也会极大的限制该函数所能接受的实参类型
 
+6.21
+    code
+    指针类型应该定义为const int *
+
+6.22
+    code
+
+6.23
+    code
+
+6.24
+    因为数组在传参过程中会转换为const int *类型，数组的长度不会被传递给函数，因此不能直接假定数组长度为10
+    可以修改为
+    void print(int (&arr)[10]) {
+        for(auto elem : arr)
+            cout << elem << endl;
+    }
+
+6.25~6.26
+    code
+
+6.27
+    code
+
+6.28
+    elem是const string &类型
+
+6.29
+    应该使用常量引用类型。initializer_list 对象中的元素都是常量，我们无法修改initializer_list 对象中的元素的值。
