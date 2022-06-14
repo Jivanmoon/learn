@@ -6,9 +6,9 @@ Linux命令格式：cmd --长格式 -短格式 非选项的传参
 
 一、目录和文件
 1、获取文件属性
-    stat：通过文件路径获取属性，面对符号链接文件时，获取的是所指目标文件的属性
-    fstat：通过文件描述符获取属性
-    lstat：面对符号链接文件时获取的是符号链接文件的属性
+    stat()：通过文件路径获取属性，面对符号链接文件时，获取的是所指目标文件的属性
+    fstat()：通过文件描述符获取属性
+    lstat()：面对符号链接文件时获取的是符号链接文件的属性
     Linux中文件类型有：
         d：目录文件
         c：字符设备文件
@@ -25,8 +25,8 @@ Linux命令格式：cmd --长格式 -短格式 非选项的传参
     所有创建的文件的权限都是创建时给定的权限减去umask之后的结果，例如创建一个文件给定权限位0666，此时umask为0002，则最后文件的权限实际为0664
 
 4、文件权限的更改/管理
-    chmod
-    fchmod
+    chmod()
+    fchmod()
 
 5、粘住位
     t位：程序的t属性表示粘着位，即告诉系统在程序完成后在内存中保存一份运行程序的备份，如该程序常用，可为系统 节省点时间，不用每次从磁盘加载到内存。由本人注明：是保存在虚拟内存中，而不是物理内存中。
@@ -39,55 +39,56 @@ Linux命令格式：cmd --长格式 -短格式 非选项的传参
 7、硬链接、符号链接
     硬链接与目录项是同义词，并且建立硬链接有限制，不能给分区建立，不能给目录建立；
     符号链接的优点是：可跨分区，可以给目录建立
-    link
-    unlink
-    remove
-    rename
+    link()
+    unlink()
+    remove()
+    rename()
 
-8、utime
+8、utime()
     可以更改文件最后读的时间和最后修改的时间
 
 9、目录的创建的和销毁
-    mkdir
-    rmdir
+    mkdir()
+    rmdir()
 
 10、更改当前的工作路径
-    chdir
-    fchdir
-    getcwd
+    chdir()
+    fchdir()
+    getcwd()
 
 11、分析目录/读取目录内容
-    glob：解析模式/通配符
+    glob()：解析模式/通配符
         
-    opendir
-    closedir
-    readdir
-    rewinddir
-    fseekdir
-    telldir
+    下面所有函数实现功能和glob一个函数类似
+    opendir()
+    closedir()
+    readdir()
+    rewinddir()
+    fseekdir()
+    telldir()
 
 
 二、系统数据文件和信息
 1、/etc/passwd
-    getpwuid：根据uid查询用户信息
-    getpwnam：根据用户名查询用户信息
+    getpwuid()：根据uid查询用户信息
+    getpwnam()：根据用户名查询用户信息
 
 2、/etc/group
-    getgrgid：根据组id查询组信息
-    getgrnam：根据组名查询组信息
+    getgrgid()：根据组id查询组信息
+    getgrnam()：根据组名查询组信息
 
 3、/etc/shadow
-    getspnam：通过用户名获取改用户在shadow文件中的一行内容
-    crypt：加密函数
-    getpass：用于在控制台输入密码
+    getspnam()：通过用户名获取改用户在shadow文件中的一行内容
+    crypt()：加密函数
+    getpass()：用于在控制台输入密码
 
 4、时间戳
     类型：time_t（时间戳）、char *（字符串）、struct tm（结构体）
-    time：获取time_t
-    gmtime：从time_t到struct tm
-    localtime：从time_t到struct tm
-    mktime：从struct tm到time_t
-    strftime：从struct tm到char *
+    time()：获取time_t
+    gmtime()：从time_t到struct tm
+    localtime()：从time_t到struct tm
+    mktime()：从struct tm到time_t
+    strftime()：从struct tm到char *
 
 三、进程环境
 1、main函数
@@ -106,17 +107,17 @@ Linux命令格式：cmd --长格式 -短格式 非选项的传参
         接到一个信号并终止
         最后一个线程对其取消请求做出响应
 
-    atexit：钩子函数
+    atexit()：钩子函数
 
 3、命令行参数的分析
-    getopt
-    getopt_long
+    getopt()
+    getopt_long()
 
 4、环境变量
     KEY = VALUE
-    getenv
-    setenv
-    putenv
+    getenv()
+    setenv()
+    putenv()
 
 5、C程序的存储空间布局
     pmap命令
@@ -125,17 +126,17 @@ Linux命令格式：cmd --长格式 -短格式 非选项的传参
     动态库
     静态库
     手工装载库：可以理解为在程序中动态的使用别的库的代码，需要使用什么库，在代码中加载使用
-    dlopen
-    dlclose
-    dlerror
-    dlsym
+    dlopen()
+    dlclose()
+    dlerror()
+    dlsym()
 
 7、函数跳转
     goto：不安全的跳转，无法实现跨函数的跳转
     下面是安全的跳转，可以实现跨函数的跳转
-    setjmp：设置跳转点
-    longjmp：跳转到跳转点
+    setjmp()：设置跳转点
+    longjmp()：跳转到跳转点
 
 8、资源获取及控制
-    getrlimit：获取资源总量
-    setrlimit：设置资源总量
+    getrlimit()：获取资源总量
+    setrlimit()：设置资源总量

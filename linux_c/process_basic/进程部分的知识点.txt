@@ -24,8 +24,17 @@
     vfork()
 
 3、进程的消亡及释放资源 
+    wait()
+    waitpid()
+    waitid()
 
 4、exec函数族
+    execl()
+    execlp()
+    execle()
+    execv()
+    execvp()
+    注意：fflush的使用，一定要在切换环境前刷新缓冲区
 
 5、用户权限及组权限
 
