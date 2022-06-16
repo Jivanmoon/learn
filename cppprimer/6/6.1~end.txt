@@ -80,3 +80,49 @@
 
 6.29
     应该使用常量引用类型。initializer_list 对象中的元素都是常量，我们无法修改initializer_list 对象中的元素的值。
+
+6.30
+    code
+    6.30.cpp: In function ‘bool str_subrange(const string&, const string&)’:
+    6.30.cpp:11:13: error: return-statement with no value, in function returning ‘bool’ [-fpermissive]
+                return ;
+                ^~~~~~
+    <builtin>: recipe for target '6.30' failed
+    make: *** [6.30] Error 1
+
+6.31
+    当引用绑定的是函数中的临时变量时，返回的引用无效；
+    当我们希望返回的对象被修改时，返回常量的引用无效。
+
+6.32
+    合法，该函数用于将数组ia中的每个元素赋值为其下标值
+
+6.33
+    code
+
+6.34
+    如果val为正数，从结果上来说没有区别（多乘了个 1）; 如果val为负数，那么递归永远不会结束。
+
+6.35
+    如果传入的值是 val--，那么将会永远传入相同的值来调用该函数，递归将永远不会结束。
+
+6.36
+    string (&func(int x))[10];
+
+6.37
+    (a)using tmp = string[10];
+        tmp &func(int x);
+    (b)auto func(int x) -> string (&)[10]
+    (c)string tmp[10];
+        decltype(tmp) &func(int x);
+    个人比较喜欢类型别名
+    
+6.38
+    decltype(odd) &arrPtr(int i) {
+        return (i % 2) ? odd : even;
+    }
+
+6.39
+    (a)非法，因为函数参数忽略顶层const
+    (b)非法，函数返回值不同不算重载
+    (c)合法，重载一个参数是double *的重载函数
