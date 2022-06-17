@@ -36,15 +36,36 @@
     execvp()
     注意：fflush的使用，一定要在切换环境前刷新缓冲区
 
-5、用户权限及组权限
+5、用户权限及组权限(主要解释u+s,g+s怎么实现)
+    实际用户权限（real）：用户本身拥有的权限
+    有效用户权限（effective）：用户在执行程序过程中有的权限
+    u+s
+    g+s
+    s权限：设置使文件在执行阶段具有文件所有者的权限，相当于临时拥有文件所有者的身份. 典型的文件是passwd. 如果一般用户执行该文件, 则在执行过程中, 该文件可以获得root权限, 从而可以更改用户的密码.
+    getuid()
+    geteuid()
+    getgid()
+    getegid()
+    setuid()：设置的是有效权限
+    setgid()：设置的是有效权限
+    setreuid()
+    setregid()
+    seteuid()
+    setegid()
 
 6、观摩课：解释器文件
+    解释器：shell解释器、python解释器....
+    解释器文件：就是脚本文件
 
 7、system函数
+    fork+wait+exec的简单封装
 
 8、进程会计
+    acct()
 
 9、进程时间
+    times()
+    
 
 10、守护进程
 

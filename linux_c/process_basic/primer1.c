@@ -29,7 +29,7 @@ int main()
             }
             if (mark)
                 printf("%d is a primer\n", i);
-            sleep(1000);
+            // sleep(1000);
             exit(0);
         }
     }
