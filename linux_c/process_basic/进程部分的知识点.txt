@@ -68,5 +68,17 @@
     
 
 10、守护进程
+    回话session：session标识sid
+    终端
+    setsid()：实现守护进程
+    getpgid()：获取进程组id
+    setpgid()：设置进程组id
+    单实例的守护进程：锁文件（一般是/var/run/name.pid）
+    启动脚本文件：按照系统搜索自启动文件
+
 
 11、系统日志
+    syslogd：系统中所有的写日志操作都有该进程实现
+    openlog()
+    closelog()
+    syslog()

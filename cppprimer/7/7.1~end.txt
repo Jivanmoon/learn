@@ -10,3 +10,21 @@
 
 7.6~7.7
     code
+
+7.8
+    因为read需要修改Sales_data变量，而print不需要
+
+7.9
+    code
+
+7.10
+    read 函数的返回值是 istream 对象，if语句中条件部分的作用是从输入流中读取数据给两个data对象。
+
+7.11~7.13
+    code
+
+7.14
+    Sales_data() : units_sold(0) , revenue(0) { }
+
+7.15
+    code
