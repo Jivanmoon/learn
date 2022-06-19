@@ -61,3 +61,53 @@
 7.27
     code
 
+7.28
+    如果返回类型是Screen，那么move返回的是 *this 的一个副本，因此set函数只能改变临时副本而不能改变myScreen的值。
+
+7.29
+    经验证后，推测正确
+
+7.30
+    优点：程序的意图更明确，函数的参数可以与成员同名此时需要使用显式使用this指针
+    缺点：繁琐
+
+7.31
+    code
+
+7.32
+    code
+
+7.33
+    会出错，可以修改为
+    Screen::pos
+    Screen::size() const {
+        return height * width;
+    }
+
+7.34
+    则类中typedef之前的所有出现pos的声明语句都会出错
+
+7.35
+    typedef string Type;
+    Type initVal(); // use `string`
+    class Exercise {
+    public:
+        typedef double Type;
+        Type setVal(Type); // use `double`
+        Type initVal(); // use `double`
+    private:
+        int val;
+    };
+
+    Type Exercise::setVal(Type parm) {  // first is `string`, second is `double`
+        val = parm + initVal();     // Exercise::initVal()
+        return val;
+    }
+    修改为
+    Exercise::Type Exercise::setVal(Type parm) {
+        val = parm + initVal();
+        return val;
+    }
+
+
+
