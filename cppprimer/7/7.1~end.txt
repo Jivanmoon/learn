@@ -141,5 +141,90 @@
     Employee(string _name) : name(_name) {}
     Employee(string _name, unsigned _workId, double _salary) : name(_name), workId(_workId), salary(_salary) {}
 
+7.41
+    code
 
+7.42
+    code
+
+7.43
+    class C {
+    public:
+        C() : tmp(0) {}
+    private:
+        NoDefault tmp;
+    };
+
+7.44
+    不合法，因为NoDefault类型没有默认构造函数，所以会出错
+
+7.45
+    合法，因为C中定义了默认构造函数
+
+7.46
+    (a)错误，可以不提供构造函数，编译器会自动加一个合成的默认构造函数
+    (b)错误，默认构造函数也可以参数列表不为空，但是每个参数都有默认值就行
+    (c)错误，为了方便该类的使用，还是应该提供一个默认构造函数
+    (d)错误，是如果类中没有定义构造函数。。。。
+
+7.47
+    我认为接受一个string参数的Sales_data构造函数应该是explicit的，因为这样比较安全
+
+7.48
+    (1)用"9-999-9999-9"值初始化一个string对象null_isbn
+    (2)用null_isbn值初始化一个Sales_data对象item1
+    (3)"9-999-9999-9"隐士转换为string类型，然后值初始化Sales_data对象item2
+
+    如果Sales_data的构造函数是explicit的，则没有什么变化
+
+7.49
+    (a)s隐式转换为Sales_data对象
+    (b)无法将s隐式转换为Sales_data &
+    (c)该成员函数是const 的，意味着不能改变对象。而combine函数的本意就是要改变对象
+
+7.50
+    explicit Person(std::istream &);
+
+7.51
+    一个整数能够隐式转换为vector对象是不合理的，但是一个const char *，例如字符串字面值可以隐式转换为string是合理的
+
+7.52
+    Sales_data 类由于含有类内初始值，因此不是聚合类，不能使用花括号括起来的成员初始值列表初始化，应该修改成如下：
+    struct Sales_data {
+        std::string bookNo;
+        unsigned units_sold;
+        double revenue;
+    };
+
+7.53
+    code
+
+7.54
+    不应该，因为constexpr函数要求，函数体中必须有且只有一条return语句
+
+7.55
+    Data不是字面值常量类，因为其含有一个string类型的数据成员
+
+7.56
+    与类本身相关而不是与各个对象相关的成员是静态成员。静态数据成员可以使不完全类型、可以作为默认实参，而普通数据成员不可以
+
+7.57
+    code
+
+7.58
+    只有字面值常量类型的constexpr才能类内初始化
+    因此rate和vec不是字面值常量类型的constexpr，所以不能类内初始化
+    可以修改的为：
+    // example.h
+    class Example {
+    public:
+        static constexpr double rate = 6.5;
+        static const int vecSize = 20;
+        static vector<double> vec;
+    };
+
+    // example.C
+    #include "example.h"
+    constexpr double Example::rate;
+    vector<double> Example::vec(Example::vecSize);
 

@@ -9,7 +9,7 @@ class Person {
 public:
     Person() = default;
     Person(const std::string _name, const std::string _address) : name(_name), address(_address) {}
-    Person(std::istream &);
+    explicit Person(std::istream &);
     std::string getName() const {return name;}
     std::string getAddr() const {return address;}
 
