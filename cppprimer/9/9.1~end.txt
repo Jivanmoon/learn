@@ -1,0 +1,38 @@
+9.1
+    (a)list，因为涉及频繁的插入操作
+    (b)deque：因为数据量未知且在头尾进行插入删除操作票
+    (c)vector：因为数据量未知，但是需要排序
+
+9.2
+    list<deque<int>> li;
+
+9.3
+    (1)两个迭代器指向同一个容器中的元素，或容器最后一个元素之后的位置
+    (2)可以通过反复递增begin到达end
+
+9.4~9.5
+    code
+
+9.6
+    修改成如下：
+    while (iter1 != iter2)
+
+9.7
+    vector<int>::size_type
+
+9.8
+    读取元素：list<string>::const_iterator
+    写元素：list<string>::iterator
+
+9.9
+    begin函数根据容器类型返回对应的迭代器，如果容器是const的，则返回const的迭代器，否则返回普通迭代器
+    cbegin函数一定返回的是const的迭代器
+
+9.10
+    这里的代码在 VS2013 下是有错误的。
+    错误 1 error C3538: 在声明符列表中，“auto”必须始终推导为同一类型 因此代码要改为
+    auto it1 = v1.begin();
+    auto it2 = v2.begin(), it3 = v1.cbegin(), it4 = v2.cbegin();
+    it1 是 vector<int>::iterator
+    it2，it3 和 it4 是 vector<int>::const_iterator
+
