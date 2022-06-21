@@ -9,12 +9,15 @@
 
 #define CPS 10
 #define BUFSIZE CPS
+#define BURST 100
 
-static volatile int loop = 0;
+static volatile int token = 0;
 
 static void alarm_handler(int sig)
-{
-    loop = 1;
+{   
+    ++token;
+    if(token > BURST) 
+        token = BURST;
     alarm(1);
 }
 
@@ -46,9 +49,9 @@ int main(int argc, char **argv)
 
     while (1)
     {
-        while (!loop)
+        while (token <= 0)
             pause();
-        loop = 0;
+        --token;
         while ((len = read(sfd, buf, BUFSIZE)) < 0)
         {
             if (errno == EINTR)
