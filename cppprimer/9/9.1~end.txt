@@ -36,3 +36,40 @@
     it1 是 vector<int>::iterator
     it2，it3 和 it4 是 vector<int>::const_iterator
 
+9.11
+    code
+
+9.12
+    接受一个容器创建拷贝的构造函数要求两个容器类型相同装的元素类型必须相同，而接受两个迭代器创建拷贝的构造函数容器可以不同，装的元素类型也只需要能够转换就行
+
+9.13
+    list<int> li;
+    vector<int> vi;
+    vector<double> vd(li.begin(), li.end());
+    vector<double> vdd(vi.begin(), vi.end());
+    code
+    
+9.14
+    code
+
+9.15~9.16
+    code
+
+9.17
+    c1和c2必须是相同容器而且元素类型相同，而且其元素必须实现了<运算符
+
+9.18~9.20
+    code
+
+9.21
+    每向vector中插入一个元素，则插入位置后面的所有元素都要后移一位
+
+9.22
+    在插入元素后，vector的迭代器会失效，该程序永远也不会结束，可以修改为：
+    while(iter != mid) {
+        if(*iter == some_val) {
+            iter = iv.insert(iter, 2 * some_val);
+            ++iter;
+        }
+        ++iter;
+    }
