@@ -11,7 +11,8 @@
 #define BUFSIZE CPS
 #define BURST 100
 
-static volatile int token = 0;
+//当把变量声明为sig_atomic_t类型会保证该变量在使用或赋值时， 无论是在32位还是64位的机器上都能保证操作是原子的， 它会根据机器的类型自动适应。
+static volatile sig_atomic_t token = 0;
 
 static void alarm_handler(int sig)
 {   
@@ -51,6 +52,7 @@ int main(int argc, char **argv)
     {
         while (token <= 0)
             pause();
+        //这里需要确保--token操作是原子的
         --token;
         while ((len = read(sfd, buf, BUFSIZE)) < 0)
         {
