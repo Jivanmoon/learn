@@ -1,14 +1,15 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<unistd.h>
 #include "anytimer.h"
 
 static void f2(void *p) {
-    printf("f2(): %s\n", p);
+    printf("f2(): %s\n", (char *)p);
 }
 
 static void f1(void *p) {
-    printf("f1(): %s\n", p);
+    printf("f1(): %s\n", (char *)p);
 }
 
 
@@ -36,5 +37,8 @@ int main() {
         write(1, ".", 1);
         sleep(1);
     }
+    at_waitjob(job1);
+    at_waitjob(job2);
+    at_waitjob(job3);
     exit(0);
 }
