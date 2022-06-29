@@ -76,5 +76,66 @@
 10.25
     code
 
+10.26
+    back_inserter总是将元素插入到容器尾部
+    inserter将元素插入到指定位置之前的位置
+    front_inserter总是将元素插入到容器首部
 
+10.27
+    code
+
+10.28
+    code
+
+10.29
+    code
+
+10.30
+    code
+
+10.31
+    code
+
+10.32
+    code
+
+10.33
+    code
+    
+10.34
+    code
+
+10.35
+    code
+
+10.36
+    code
+
+10.37
+    code
+
+10.38
+    输入迭代器：==,!=,++,*,->
+    输出迭代器：++,*
+    前向迭代器：==,!=,++,*,->
+    双向迭代器：==,!=,++,--,*,->
+    随机访问迭代器：==,!=,>,>=,<,<=,++,--,+,+=,-,-=,*,->,[]
+
+10.39
+    list上迭代器属于双向迭代器
+    vector上迭代器属于随机访问迭代器
+
+10.40
+    copy前两个参数要求输入迭代器，第三个参数要求输出迭代器
+    reverse要求双向迭代器
+    unique要求随机访问迭代器
+
+10.41
+    replace将容器中的所有old_val替换为new_val
+    replace_if将容器中所有满足pred谓词的元素替换为new_val
+    replace_copy将容器中的所有old_val替换为new_val，并将结果放入到dest容器中
+    replace_copy_if将容器中所有满足pred谓词的元素替换为new_val，并将结果放入到dest容器中
+
+10.42
+    code
 
