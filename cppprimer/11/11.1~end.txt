@@ -48,5 +48,94 @@
 11.14
     code
 
+11.15
+    mapped_type是vector<int>
+    key_type是int
+    valuetype是pair<const int, vector<int>>
+
+11.16
+    map<int, int> mp;
+    auto i = mp.begin();
+    i->second = num;
+
+11.17
+    合法，将v中的所有元素拷贝到c中
+    不合法，因为multiset不支持push_back操作
+    合法，将c中的所有元素添加到v的末尾
+    合法，将c中的所有元素添加到v的末尾
+
+11.18
+    map<string, size_t>::const_iterator
+
+11.19
+    mutliset<Sales_data, bool (*)(const Sales_data &, const Sales_data &)>::iterator
+
+11.20
+    code
+    我认为使用下标操作的程序更容易编写和阅读，因为使用下标操作简洁明了
+
+11.21
+    将word_count中关键字word对应的值加1，如果word关键字不存在，则创建并加1
+
+11.22
+    std::pair<std::string, std::vector<int>>    // 参数类型
+    std::pair<std::map<std::string, std::vector<int>>::iterator, bool> // 返回类型
+
+11.23
+    code
+
+11.24
+    如果m中有关键字0，则将其值设置为1，如果没有则添加关键字0并设置其值为1
+
+11.25
+    该程序错误，vector的下标操作只能访问已有元素
+
+11.26
+    可以用key_type类型进行下标操作，下标运算符返回的类型是mapped_type的引用类型
+
+11.27
+    如果容器中有多个相同元素且求得是相同元素的数量时用count
+    如果只是找当前元素是否在容器中使用find
+
+11.28
+    map<string, vector<int>> m;
+    map<string, vector<int>>::iterator it = m.find("key");
+
+11.29
+    upper_bound和lower_bound会返回相等的迭代器，这个迭代器指向一个不影响排序的关键字插入位置
+    equal_range返回一个迭代器pair，其中的两个迭代器都指向一个相同的位置，指向一个不影响排序的关键字插入位置
+
+11.30
+    pos 是一个 pair，pos.first 是一个迭代器，指向匹配关键字的元素，该元素是一个 pair，访问该元素的第二个成员。
+
+11.31
+    code
+
+11.32
+    code
+
+11.33
+    code
+
+11.34
+    map中下标运算符如果容器中没有key，会创建key并对value执行值初始化，因此会将没有转换规则的单词换成空字符串
+
+11.35
+    当一个转换规则的关键字多次出现的时候，使用下标运算符会保留最后一次添加的规则，而用insert则保留第一次添加的规则。
+
+11.36
+    程序会抛出一个runtime_error
+
+11.37
+    无序容器使用哈希实现，有序容器使用红黑树实现，无序容器一般具有较好的性能，有序容器优势在于能提供更多的功能
+
+11.38
+    code
+
+
+
+
+
+
 
 
