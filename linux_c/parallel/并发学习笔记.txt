@@ -77,12 +77,31 @@
             3、线程调用pthread_exit()函数
         pthread_join()相当于进程中的wait()
 
-    线程的取消选项
     栈的清理
         pthread_cleanup_push()
         pthread_cleanup_pop()
+
+    线程的取消选项
+        线程取消：pthread_cancel()
+        取消有两种状态：允许和不允许
+        允许取消又分为：异步cancle和推迟cancel，其中推迟cancel是默认的，推迟cancel是指推迟至cancel点再响应。
+        cancel点：POSIX定义的cancel点，都是可能引发阻塞的系统调用
+        pthread_setcancelstate()：设置是否允许被取消
+        pthread_setcanceltype()：设置取消方式
+        pthread_testcancel()：本函数什么都不做，就是一个取消点
         
-3、线程同步 
+    线程分离
+        pthread_detach()：分离后的线程不能被join
+
+3、线程同步
+    互斥量
+        类型：pthread_mutex_t
+        pthread_mutex_init()
+        pthread_mutex_destroy()
+        pthread_mutex_lock()
+        pthread_mutex_trylock()
+        pthread_mutex_unlock()
+
 4、线程属性
     线程同步的属性
 5、重入
