@@ -1,0 +1,52 @@
+11.1
+    map是关联容器，vector是顺序容器
+
+11.2
+    list：数据量未知，需要频繁在容器中进行插入操作的场景
+    vector：数据量未知，但插入操作较少或插入操作集中在容器尾部的场景
+    deque：数据量未知，但插入操作较少或插入操作集中在容器尾部或首部的场景
+    map：需要快速查询key对应的value值的场景
+    set：需要快速查询元素是否在容器中的场景
+    
+11.3
+    code
+
+11.4    
+    code
+
+11.5
+    map是键值对，而set只有键没有值。当我需要存储键值对的时候使用map，而只需要键的时候使用set。
+
+11.6
+    set是有序不重复集合，底层实现是红黑树，而list是无序可重复集合，底层实现是链表。
+
+11.7
+    code
+
+11.8
+    code
+    set的优点是容器本身可以实现去重操作
+
+11.9
+    map<string, list<size_t>>
+
+11.10
+    可以定义一个vector<int>::iterator到int的map，因为vector<int>::iterator支持<运算符
+    不能定义一个list<int>::iterator到int的map，因为list<int>::iterator不支持支持<运算符
+
+11.11
+    multiset<Sales_data, bool (*)(const Sales_data &, const Sales_dat &)> bookstore(compareIsbn);
+
+11.12
+    code
+
+11.13
+    v.push_back({s, i});
+    v.push_back(make_pair(s, i));
+    v.push_back(pair<string, int>(s, i));
+
+11.14
+    code
+
+
+
