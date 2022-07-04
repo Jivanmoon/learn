@@ -1,6 +1,6 @@
 #include "TextQuery.h"
 
-TextQuery::TextQuery(std::ifstream &is): file(new std::vector<std::string>) {
+TextQuery::TextQuery(std::ifstream &is): file(new StrBlob) {
     std::string text;
     while(std::getline(is, text)) {
         file->push_back(text);
@@ -34,7 +34,10 @@ TextQuery::query(const std::string &sought) const {
 std::ostream &print(std::ostream &os, const QueryResult &qr) {
     os << qr.sought << " occurs " << qr.lines->size() << " "
         << "time" << (qr.lines->size() > 1 ? "s" : "") << std::endl;
-    for (auto num : *qr.lines)
-		os << "\t(line " << num + 1 << ") " << *(qr.file->begin() + num) << std::endl;
+    for (auto num : *qr.lines) {
+        StrBlobPtr ptr(*(qr.file), num);
+        os << "\t(line " << num + 1 << ") " << ptr.deref() << std::endl;
+    }
+		
     return os;
 }

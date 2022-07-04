@@ -106,4 +106,25 @@
     code
 
 12.29
+    void runQueries(ifstream &infile) {
+        TextQuery tq(infile);
+        do {
+            cout << "enter word to look for, or q to quit: ";
+            string s;
+            if(!(cin >> s) || s == "q") break;
+            print(cout, tq.query(s));
+        } while(true);
+    }
+    一般更新用while来写循环
+
+12.30
+    见12.27
+
+12.31
+    vector没有set的自动去重功能，因此需要自己实现去重，明显使用set更好
+
+12.32
+    code
+
+12.33
     code
