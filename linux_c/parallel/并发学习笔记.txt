@@ -101,6 +101,7 @@
         pthread_mutex_lock()
         pthread_mutex_trylock()
         pthread_mutex_unlock()
+        pthread_once()：实现某一个模块的单次初始化
 
 4、线程属性
     线程同步的属性

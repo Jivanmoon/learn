@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
     if (argc < 2)
     {
-        fprintf(stderr, "usage...");
+        fprintf(stderr, "usage...\n");
         exit(1);
     }
 
