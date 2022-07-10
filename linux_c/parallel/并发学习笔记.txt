@@ -103,6 +103,15 @@
         pthread_mutex_unlock()
         pthread_once()：实现某一个模块的单次初始化
 
+    条件变量：
+        类型：pthread_cond_t
+        pthread_cond_inti()
+        pthread_cond_destroy()
+        pthread_cond_broadcast()
+        pthread_cond_signal()
+        pthread_cond_wait()
+        pthread_cond_timedwait()
+
 4、线程属性
     线程同步的属性
 5、重入
