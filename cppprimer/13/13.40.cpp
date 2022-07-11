@@ -1,0 +1,142 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+class StrVec {
+public:
+    StrVec(): elements(nullptr), first_free(nullptr), cap(nullptr) {}
+    StrVec(const initializer_list<string> &li);
+    StrVec(const StrVec &);
+    StrVec &operator=(const StrVec &);
+    ~StrVec();
+    void push_back(const string &);
+    size_t size() const {return first_free - elements;}
+    size_t capacity() const {return cap - elements;}
+    string *begin() const {return elements;}
+    string *end() const {return first_free;}
+
+    std::string& at(size_t pos) { return *(elements + pos); }
+    const std::string& at(size_t pos) const { return *(elements + pos); }
+
+    //分配至少能容纳n个元素的内存空间，只有当n大于size时，reverve才会改变容器大小
+    void reserve(const size_t &n);
+    //调整容器大小为n个元素，若n小于size,则多出的元素被丢弃，若必须新添加元素，则对新元素进行值初始化
+    void resize(const size_t &n);
+    //新添加的元素都初始化为t
+    void resize(const size_t &n, const string &t);
+
+
+private:
+    void chk_n_alloc() {
+        if(size() == capacity()) reallocate();
+    }
+    pair<string *, string *> alloc_n_copy(const string *, const string *);
+    void alloc_n_move(const size_t &n);
+    void free();
+    void reallocate();
+
+private:
+    allocator<string> alloc;
+    string *elements, *first_free, *cap;
+};
+
+void StrVec::push_back(const string &s) {
+    chk_n_alloc();
+    alloc.construct(first_free++, s);
+}
+
+pair<string *, string *>
+StrVec::alloc_n_copy(const string *b, const string *e) {
+    auto data = alloc.allocate(e - b);
+    return {data, uninitialized_copy(b, e, data)};
+}
+
+void StrVec::free() {
+    if(elements) {
+        for(auto p = first_free; p != elements;) {
+            alloc.destroy(--p);
+        }
+        alloc.deallocate(elements, cap - elements);
+    }
+}
+
+StrVec::StrVec(const initializer_list<string> &li) {
+    auto newdata = alloc_n_copy(li.begin(), li.end());
+    elements = newdata.first;
+    first_free = cap = newdata.second;
+}
+
+StrVec::StrVec(const StrVec &s) {
+    auto newdata = alloc_n_copy(s.begin(), s.end());
+    elements = newdata.first;
+    first_free = cap = newdata.second;
+}
+
+StrVec::~StrVec() {
+    free();
+}
+
+StrVec &StrVec::operator=(const StrVec &rhs) {
+    auto data = alloc_n_copy(rhs.begin(), rhs.end());
+    free();
+    elements = data.first;
+    first_free = cap = data.second;
+    return *this;
+}
+
+void StrVec::alloc_n_move(const size_t &n) {
+    auto newdata = alloc.allocate(n);
+    auto dest = newdata;
+    auto elem = elements;
+    for(size_t i = 0; i != size(); ++i) {
+        alloc.construct(dest++, std::move(*elem++));
+    }
+    free();
+    elements = newdata;
+    first_free = dest;
+    cap = elements + n;
+}
+
+
+void StrVec::reallocate() {
+    auto newcapacity = size() ? 2 * size() : 1;
+    alloc_n_move(newcapacity);
+}
+
+//分配至少能容纳n个元素的内存空间，只有当n大于size时，reverve才会改变容器大小
+void StrVec::reserve(const size_t &n) {
+    if(n <= size()) return ;
+    alloc_n_move(n);
+}
+
+//调整容器大小为n个元素，若n小于size,则多出的元素被丢弃，若必须新添加元素，则对新元素进行值初始化
+void StrVec::resize(const size_t &n) {
+    resize(n, string());
+}
+//新添加的元素都初始化为t
+void StrVec::resize(const size_t &n, const string &t) {
+    if(n > size()) {
+        if(n > capacity()) reserve(n * 2);
+        for(size_t i = size(); i != n; ++i) {
+            alloc.construct(first_free++, t);
+        }
+    }
+    else if(n < size()) {
+        int diff = size() - n;
+        while(diff--) {
+            alloc.destroy(--first_free);
+        }
+    }
+}
+
+int main() {
+    StrVec s{
+        "abc",
+        "dasd",
+        "hello"
+    };
+    auto beg = s.begin();
+    *beg = "word";
+    for(size_t i = 0; i != s.size(); ++i) {
+        cout << s.at(i) << endl;
+    }
+}
