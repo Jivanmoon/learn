@@ -112,6 +112,9 @@
         pthread_cond_wait()
         pthread_cond_timedwait()
 
+    信号量：
+        
+
 4、线程属性
     线程同步的属性
 5、重入
