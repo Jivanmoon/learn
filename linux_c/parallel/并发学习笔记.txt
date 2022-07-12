@@ -113,9 +113,17 @@
         pthread_cond_timedwait()
 
     信号量：
-        
+        使用互斥量和条件变量实现信号量
+    
+    读写锁:
+        使用互斥量和信号量实现读写锁
 
 4、线程属性
+    类型：pthread_attr_t
+    pthread_attr_init()
+    pthread_attr_destroy()
+    
+
     线程同步的属性
 5、重入
     线程与信号
