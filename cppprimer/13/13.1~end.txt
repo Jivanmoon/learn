@@ -192,4 +192,38 @@
 13.47~13.38
     code in 13.47
 
+13.49
+    code
+
+13.50
+    code
+
+13.51
+    不能拷贝unique_ptr的规则有一个例外：我们可以拷贝或赋值一个将要被销毁的unique_ptr，编译器知道要返回的对象将要被销毁，因此会执行一种特殊的"拷贝" – 移动。最常见的就是从函数返回unique_ptr。
+
+13.52
+    hp = hp2;//hp2是一个左值，hp2通过拷贝构造函数来拷贝，拷贝构造函数将分配一个新的string，并拷贝hp2指向的string。
+    hp = std::move(hp2);//移动构造函数移动hp2，调用std::move将一个右值引用绑定到hp2上。在此情况下，拷贝构造函数和移动构造函数都是可行的。由于实参是一个右值引用，所以移动构造函数是精确匹配的。因此移动构造函数从hp2拷贝指针，而不会分配内存。
+
+13.53
+    HasPtr的赋值运算符使用了拷贝并交换来实现，因此会出现实参拷贝给形参的现象，效率较低。
+    code
+
+13.54
+    报错：13.53.cpp:57:24: error: ambiguous overload for ‘operator=’ (operand types are ‘HasPtr’ and ‘std::remove_reference<HasPtr&>::type {aka HasPtr}’)
+     hp1 = std::move(*pH);
+
+13.55
+    code
+
+13.56
+    会无限循环，并最终栈溢出
+
+13.57
+    Foo(*this)返回的是一个右值，能够调用sorted的右值版本，返回排序后的Foo。
+
+13.58
+    code
+
+
 
