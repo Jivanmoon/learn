@@ -57,11 +57,14 @@ class ConstStrBlobPtr {//对应位置修改
 public:
     ConstStrBlobPtr():curr(0) { }
     ConstStrBlobPtr(const StrBlob &a, size_t sz = 0):wptr(a.data), curr(sz) { }
-    bool operator!=(const ConstStrBlobPtr& p) { return p.curr != curr; }//添加const
+
+    bool operator!=(const ConstStrBlobPtr& p) const { return p.curr != curr; }
+
     const string& deref() const {//返回值添加const
         auto p = check(curr, "dereference past end");
         return (*p)[curr];
     }
+
     ConstStrBlobPtr& incr() {// 前缀递增
         check(curr, "increment past end of StrBlobPtr");
         ++curr;
