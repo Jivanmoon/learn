@@ -131,6 +131,57 @@
 14.40
     code
 
+14.41
+    为了简化代码，如果要实现的功能比较简单，我就会使用lambda，功能复杂的情况下使用类
+
+14.42
+    code
+
+14.43
+    code in 14.42
+
+14.44
+    code
+
+14.45
+    code
+
+14.46
+    可以，这样能够提供使用者一种容易的途径去获取编号或价格。应该要声明为explicit，避免使用者无意中隐式转换从而产生意外的结果。
+
+14.47
+    operator const int();是将Integral隐式转换为const int类型
+    operator int() const;是将Intergal隐式转换为int类型
+
+14.48
+    略
+
+14.49
+    略
+
+14.50
+    struct LongDouble {
+        LongDouble (double = 0.0);
+        operator double();
+        operator float();
+    };
+    LongDouble ldObj;
+    // 产生二义性：在将ldObj转换为int时，类定义的类型转换都无法精准匹配，可能先执行 operator double(), 再进行double到int的转换。
+    // 也可能调用operator float()，再进行float到int的转换。
+    int ex1 = ldObj;    
+    // 调用operator float()   
+    float ex2 = ldObj;  
+
+14.51
+    calc是会优先调用calc(int)，doube转int是标准类型转换，而LongDouble转int是用户自定义转换。
+
+14.52
+    ld = si + ld;具有二义性，调用1需将si转换为LongDouble，ld转换为SmallInt。调用2需要将si转换为LongDouble，ld转换为double。
+    ld = ld + si;精确匹配LongDouble operator+ (const SmallInt&);若调用LongDouble operator+(LongDouble&, double);还需将si转换为double。
+
+14.53
+    由于内置的operator+(int, double)是可行的，同时3.14可以转换为int，然后再转换为SmallInt，所以SmallInt的成员operator+也是可行的。因为两者都需要进行类型转换，所以会产生二义性。改为：double d = s1 +SmallInt(3.14);
+
 
 
 
