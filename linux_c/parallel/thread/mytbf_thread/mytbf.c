@@ -10,7 +10,6 @@
 
 static struct mytbf_st *job[MYTBF_MAX];
 static pthread_mutex_t mut_job = PTHREAD_MUTEX_INITIALIZER;
-static int inited = 0;
 static unsigned int onesec = 1e6;
 static pthread_t tid_alrm;
 static pthread_once_t init_once = PTHREAD_ONCE_INIT;
@@ -35,7 +34,7 @@ static void *thr_alrm(void *p) {
                 if(job[i]->token > job[i]->burst) {
                     job[i]->token = job[i]->burst;
                 }
-                pthread_cond_signal(&job[i]->cond);
+                pthread_cond_broadcast(&job[i]->cond);
                 pthread_mutex_unlock(&job[i]->mut);
             }
             pthread_mutex_unlock(&mut_job);

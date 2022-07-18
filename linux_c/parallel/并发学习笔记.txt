@@ -116,15 +116,50 @@
         使用互斥量和条件变量实现信号量
     
     读写锁:
-        使用互斥量和信号量实现读写锁
+        类型：pthread_rwlock_t
+        具体操作自己查
 
 4、线程属性
     类型：pthread_attr_t
     pthread_attr_init()
     pthread_attr_destroy()
-    
+    pthread_attr_setstacksize()
+    见man pthread_attr_init的see also
 
     线程同步的属性
+        互斥量属性：
+            类型：pthread_mutexattr_t
+            pthread_mutexattr_init()
+            pthread_mutexattr_destroy()
+            pthread_mutexattr_getpshared()
+            pthread_mutexattr_setpshared()
+            clone()
+            pthread_mutexattr_gettype()
+            pthread_mutexattr_settype()
+            见man pthread_mutexattr_init的see also
+        
+        条件变量属性：
+            类型：pthread_condattr_t
+            pthread_condxattr_init()
+            pthread_condattr_destroy()
+            pthread_condattr_getpshared()
+            pthread_condattr_setpshared()
+            见man pthread_condattr_init的see also
+
+        读写锁变量属性：
+            略
+        
 5、重入
-    线程与信号
+    多线程中的IO：
+        所有的系统IO都默认实现了多线程并发安全，没有实现多线程并发安全的版本一般在函数名后加"unlocked"
+
+    线程与信号：
+        pthread_sigmask()
+        sigwait()
+        pthread_kill()
+
     线程与fork
+        fork之后子进程中是否包含父进程的所有线程？不同的标准会有不同
+    
+6、openmp标准线程 --> www.OpenMP.org
+    

@@ -39,13 +39,13 @@ int main() {
         exit(1);
     }
     
-    job1 = rel_add_job(fd1, fd2);
+    job1 = rel_addjob(fd1, fd2);
     if(job1 < 0) {
         fprintf(stderr, "rel_add_job(): %s\n", strerror(-job1));
         exit(1);
     }
 
-    job2 = rel_add_job(fd3, fd4);
+    job2 = rel_addjob(fd3, fd4);
     if(job2 < 0) {
         fprintf(stderr, "rel_add_job(): %s\n", strerror(-job2));
         exit(1);

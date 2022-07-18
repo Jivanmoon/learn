@@ -1,10 +1,11 @@
-CFLAGS+=-pthread
-LDFLAGS+=-pthread
 
-all: relayer
+
 
 relayer: relayer.o main.o
-	gcc $^ -o $@
+	gcc -pthread $^ -o $@
+
+%.o: %.c
+	gcc -pthread -c $<
 
 clean:
 	rm -rf *.o relayer

@@ -3,6 +3,7 @@
 #include<unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include<sys/select.h>
 #include<errno.h>
 #include <fcntl.h>
 #define TTY1 "/dev/tty11"
@@ -12,6 +13,7 @@
 enum {
     STATE_R = 1,
     STATE_W,
+STATE_AUTO,
     STATE_Ex,
     STATE_T
 };
@@ -82,7 +84,13 @@ static void fsm_driver(struct fsm_st *fsm) {
     }
 }
 
+static int max(int a, int b) {
+    return a > b ? a : b;
+}
+
+
 static void relay(int fd1, int fd2) {
+    fd_set rset, wset;
     int fd1_save = fcntl(fd1, F_GETFL);
     fcntl(fd1, F_SETFL, fd1_save | O_NONBLOCK);
     int fd2_save = fcntl(fd2, F_GETFL);
@@ -97,11 +105,37 @@ static void relay(int fd1, int fd2) {
     fsm21.dfd = fd1;
 
     while(fsm12.state != STATE_T || fsm21.state != STATE_T) {
-        fsm_driver(&fsm12);
-        fsm_driver(&fsm21);
+        //布置监视任务
+        FD_ZERO(&rset);
+        FD_ZERO(&wset);
+        if(fsm12.state == STATE_R) {
+            FD_SET(fsm12.sfd, &rset);
+        }
+        if(fsm12.state == STATE_W) {
+            FD_SET(fsm12.dfd, &wset);
+        }
+        if(fsm21.state == STATE_R) {
+            FD_SET(fsm21.sfd, &rset);
+        }
+        if(fsm21.state == STATE_W) {
+            FD_SET(fsm21.dfd, &wset);
+        }
+        //监视
+        if(fsm12.state < STATE_AUTO || fsm21.state < STATE_AUTO) {
+            if(select(max(fd1, fd2) + 1, &rset, &wset, NULL, NULL) < 0) {
+                if(errno == EINTR) {
+                    continue;
+                }
+                perror("select()");
+                exit(1);
+            }
+        }
+        //查看监视结果，根据监视结果推动状态机
+        if(FD_ISSET(fd1, &rset) || FD_ISSET(fd2, &wset) || fsm12.state > STATE_AUTO)
+            fsm_driver(&fsm12);
+        if(FD_ISSET(fd2, &rset) || FD_ISSET(fd1, &wset) || fsm21.state > STATE_AUTO)
+            fsm_driver(&fsm21);
     }
-
-
     fcntl(fd1, F_SETFL, fd1_save);
     fcntl(fd2, F_SETFL, fd2_save);
 }
