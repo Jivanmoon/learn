@@ -29,5 +29,59 @@
 15.10
     read是std::istream下的函数，不过由于ifstream继承自istream，因此也可以使用read函数。
 
+15.11
+    code in 15.7
+
+15.12
+    可以这么做，override意味着重载父类中的虚函数，final意味着禁止子类重载该虚函数。两个用法并不冲突。
+
+15.13
+    class base {
+    public:
+        string name() { return basename; }
+        virtual void print (ostream& os) { os << basename; }
+    private:
+        string basename = "home";    
+    };
+    class derived : public base {
+    public: 
+        void print(ostream& os) { print(os); os << " " << i; }
+        // 这里意为重写base类的print函数，并且在其中调用base的print(os)，但是由于没有加::范围限定符，导致
+        // 其调用的还是derived的print函数，造成无限递归。现象是打印完一行home之后就卡住了。
+        // 改为：void print(ostream& os) override{ base::print(os); os << " " << i; }
+        // 加override说明是覆盖基类的虚函数。
+    private:
+        int i = 2;
+    };
+
+15.14
+    (a)调用base中的print函数
+    (b)调用derived中的print函数
+    (c)调用base中的name函数
+    (d)调用base中的name函数
+    (e)调用base中的print函数
+    (f)调用derived中的print函数
+
+15.15~15.17
+    code in 15.15
+    错误信息：Quote.cpp:42:16: error: cannot declare variable ‘d’ to be of abstract type ‘Disc_quote’
+
+15.18
+    Base *p = &d1;
+    p = &&dd1；
+    以上为合法的
+    对于代码中的每个给定节点来说，如果基类的共有成员是可以访问的，则派生类向基类的类型转换也是可访问的，否则就不行。
+
+15.19
+    Pub_Derv、Priv_Derv、Prot_Derv都是合法的
+    Derived_from_Public、Derived_from_Protected是合法的
+    Derived_from_Private是不合法的
+
+15.20
+    code
+
+15.21~15.22
+    code in 15.21.hpp
+
 
 

@@ -13,7 +13,7 @@ void Quote::debug() const {
 }
 
 double Bulk_quote::net_price(size_t cnt) const {
-    if(cnt >= min_qty)
+    if(cnt >= quantity)
         return cnt * (1 - discount) * price;
     else
         return cnt * price;
@@ -22,18 +22,22 @@ double Bulk_quote::net_price(size_t cnt) const {
 void Bulk_quote::debug() const {
     cout << "This is Bulk_quote class." << endl;
     cout << " price = " << price << endl;
-    cout << "min_qty = " << min_qty << " discount = " << discount << endl;
+    cout << "quantity = " << quantity << " discount = " << discount << endl;
 }
 
 double Limit_quote::net_price(size_t cnt) const {
-    if(cnt <= limit) 
+    if(cnt <= quantity) 
         return cnt * (1 - discount) * price;
     else 
-        return limit * (1 - discount) * price + (cnt - limit) * price;
+        return quantity * (1 - discount) * price + (cnt - quantity) * price;
 }
 
 void Limit_quote::debug() const {
     cout << "This is Limit_quote class." << endl;
     cout << " price = " << price << endl;
-    cout << "limit = " << limit << " discount = " << discount << endl;
+    cout << "quantity = " << quantity << " discount = " << discount << endl;
 }
+
+// int main() {
+//     Disc_quote d;
+// }
