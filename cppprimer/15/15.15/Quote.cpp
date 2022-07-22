@@ -38,6 +38,8 @@ void Limit_quote::debug() const {
     cout << "quantity = " << quantity << " discount = " << discount << endl;
 }
 
-// int main() {
-//     Disc_quote d;
-// }
+int main() {
+    Bulk_quote bq1("aaa", 12.5, 5, 0.3);
+    Quote &q = bq1;
+    print_total(std::cout, q, 10);
+}

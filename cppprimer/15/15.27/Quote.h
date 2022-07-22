@@ -9,14 +9,13 @@ public:
     Quote(const string &book, double sales_price):
         bookNo(book), price(sales_price) {}
     string isbn() const {return bookNo;}
+    virtual ~Quote() = default;
     virtual double net_price(size_t n) const {
         return n * price;
     }
-    virtual ~Quote() = default;
-    virtual void debug() const;
-private:
-    string bookNo;
+     
 protected:
+    string bookNo;
     double price = 0.0;
 };
 
@@ -36,21 +35,15 @@ protected:
 class Bulk_quote: public Disc_quote {
 
 public:
-    Bulk_quote() = default;
-    Bulk_quote(const string &book, double p, size_t qty, double disc):
-        Disc_quote(book, p, qty, disc) {}
+    using Disc_quote::Disc_quote;
     double net_price(size_t) const override;
-    void debug() const override;
 };
 
 //Limit_quote
 class Limit_quote: public Disc_quote {
 public:
-    Limit_quote() = default;
-    Limit_quote(const string &book, double p, size_t lmt, double disc):
-        Disc_quote(book, p, lmt, disc) {}
+    using Disc_quote::Disc_quote;
     double net_price(size_t) const override;
-    void debug() const override;
 };
 
 

@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 using std::string;
@@ -23,6 +24,8 @@ public:
     virtual double net_price(size_t n) const {
         return n * price;
     }
+    virtual Quote *clone() const & { return new Quote(*this); }
+    virtual Quote *clone() && { return new Quote(std::move(*this)); }
 
 protected:
     string bookNo;
@@ -33,7 +36,6 @@ protected:
 class Bulk_quote : public Quote {
 
 public:
-    using Quote::Quote;
     Bulk_quote() {
         std::cout << "Bulk_quote 默认构造函数" << std::endl;
     }
@@ -50,9 +52,14 @@ public:
         std::cout << "Bulk_quote 析构函数" << std::endl;
     }
 
+    Bulk_quote *clone() const & override { return new Bulk_quote(*this); }
+    Bulk_quote *clone() && override { return new Bulk_quote(std::move(*this)); }
+
     double net_price(size_t) const override;
 
 private:
     size_t min_qty  = 0;
     double discount = 0.0;
 };
+
+double print_total(std::ostream &os, const Quote &item, size_t n);
