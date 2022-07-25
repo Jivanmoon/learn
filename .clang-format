@@ -1,0 +1,19 @@
+---
+Language:        Cpp
+BasedOnStyle:  LLVM
+# 缩进宽度
+IndentWidth: 4
+# Tap缩进宽度
+TabWidth: 4
+# 在构造函数的初始化列表的逗号前换行
+BreakConstructorInitializersBeforeComma:	false
+# 缩进case标签
+IndentCaseLabels: false
+# 访问说明符(public、private等)的偏移
+AccessModifierOffset: -4
+# 连续赋值时，对齐所有等号
+AlignConsecutiveAssignments: true
+# 总是在template声明后换行
+AlwaysBreakTemplateDeclarations: false
+# 每行字符的限制，0表示没有限制
+ColumnLimit: 0
