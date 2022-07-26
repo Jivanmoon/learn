@@ -22,4 +22,26 @@
 16.8
     原因是更多的类定义了“!=”而不是<。这样做可以减少与模板类一起使用的类的需求数量。
 
+16.9
+    函数模板是一个公式，可以从中生成该函数的特定类型版本。
+    类模板是生成类的蓝图。类模板与函数模板的区别在于，编译器无法推断类模板的参数类型。相反，要使用类模板，必须在模板名称后面的尖括号内提供附加信息
 
+16.10
+    编译器使用显示模版实参初始化一个类。
+
+16.11
+    修改为：
+    template<typename elemType> class ListItem;
+    template<typename elemType> class List {
+    public:
+        List();
+        List(const List &);
+        List &operator=(const List &);
+        ~List();
+        void insert(ListItem<elemType> *ptr, elemType value);
+    private:
+        ListItem<elemType> *front, *end;
+    };
+
+16.12
+    code
