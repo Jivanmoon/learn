@@ -35,6 +35,10 @@ public:
     Blob(std::initializer_list<T> li);
     Blob(const Blob &rhs);
 
+    //16.24
+    template<class It>
+    Blob(It, It);
+
     Blob &operator=(const Blob &rhs);
 
     T &operator[](size_type i);
@@ -62,6 +66,11 @@ private:
     //如果data[i]不合法，抛出一个异常
     void check(size_type i, const std::string &msg) const;
 };
+
+//16.24
+template<class T>
+template<class It>
+Blob<T>::Blob(It begin, It end) : data(std::make_shared<std::vector<T>>(begin, end)) {}
 
 template<class T>
 bool operator==(const BlobPtr<T> &, const BlobPtr<T> &);

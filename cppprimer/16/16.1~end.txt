@@ -55,4 +55,56 @@
 16.16
     code
 
+16.17
+    没有什么不同，当我们系统通知编译器一个名字表示类型时，必须使用typename关键字
+
+16.18
+    (a)非法，,每一个模板参数都需要定义
+        修改为：template<class T, class U, class V> void f1(T, U, V);
+    (b)非法，模板中不能重用模板参数名
+        修改为：template<class T> T foo(int &t);
+    (c)非法，关键字inline应该放到模板定义之后，返回值之前
+        修改为：template<class T> inline T foo(T, unsigned int *);
+    (d)非法，缺少返回值
+        修改为：template<class T> T f4(T, T);
+    (e)合法，但不建议这么使用
+
+16.19~16.20
+    code in 16.19
+
+16.21
+    code
+
+16.22~16.23
+    略
+
+16.24
+    code in 16.12
+    
+16.25
+    (a)extern template class Blob<string>;实例化class声明
+    (b)template int compare(const int&, const int&);实例化compare函数定义
+
+16.26
+    原因是，当我们显式实例化vector<Nodefault>时，编译器会实例化vector的所有成员函数，包括它接受容器大小参数的构造函数。vector的这个构造函数会使用元素类型的默认构造函数来对元素进行值初始化，而NoDefault没有默认构造函数，从而导致编译错误。
+
+16.27
+    template <typename T> class Stack {};
+    void f1(Stack<char>);//a.没有实例化，只有在有数据时才会实例化
+    class Exercise {
+        Stack<double> &rsd;//b.没有实例化，引用并不会实例化，因为没有数值存在
+        Stack<int> si;//c.实例化出一个Stack<int>的实例
+    };
+    int main(int argc, char** argv)
+    {
+        Stack<char> *sc;//d.没有实例化，指针不会实例化，指针包含的是地址
+        f1(*sc);//e.实例化出一个Stack<char>的实例，因为函数接收到数据，而且是按值传递
+        int iObj = sizeof(Stack<string>);//f.实例化出一个Stack<string>的实例，
+        return 0;
+    }
+
+
+
+
+
 
