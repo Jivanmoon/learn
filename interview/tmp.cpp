@@ -1,20 +1,21 @@
 #include <iostream>
 using namespace std;
-void judge_bigend_littleend()
-{
-    union
-    {
-        int i;
-        char c;
-    }un;
-    un.i = 1;
+class A {
+public:
+    void func1() {
+        cout << "virtual void A::func1()" << endl;
+    }
+};
 
-    if (un.c == 1)
-        printf("小端\n");
-    else
-        printf("大端\n");
-}
+class B : public A {
+public:
+    void func1(int a) {
+        cout << "virtual void B::func1(int a)" << endl;
+    }
+};
 int main() {
-    judge_bigend_littleend();
+    B b;
+    b.A::func1();
+    b.func1(1);
     return 0;
 }
