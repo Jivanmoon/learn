@@ -5,17 +5,14 @@ public:
     void func1() {
         cout << "virtual void A::func1()" << endl;
     }
-};
-
-class B : public A {
-public:
-    void func1(int a) {
-        cout << "virtual void B::func1(int a)" << endl;
+    static void func() {
+        cout << "static void func()" << endl;
     }
 };
+
 int main() {
-    B b;
-    b.A::func1();
-    b.func1(1);
+    A a;
+    a.func();
+    A::func();
     return 0;
 }
