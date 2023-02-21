@@ -68,7 +68,7 @@
     
 
 10、守护进程
-    回话session：session标识sid
+    会话session：session标识sid
     终端
     setsid()：实现守护进程
     getpgid()：获取进程组id
